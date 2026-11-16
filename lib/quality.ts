@@ -9,8 +9,8 @@ export type QualityTier = {
 export const tiers: readonly QualityTier[] = [
   { maxDpr: 1, antialias: false, shadowMap: 0, flecks: 0 },
   { maxDpr: 1.5, antialias: true, shadowMap: 0, flecks: 0 },
-  { maxDpr: 1.75, antialias: true, shadowMap: 1024, flecks: 120 },
-  { maxDpr: 2, antialias: true, shadowMap: 2048, flecks: 240 },
+  { maxDpr: 1.75, antialias: true, shadowMap: 512, flecks: 120 },
+  { maxDpr: 2, antialias: true, shadowMap: 1024, flecks: 240 },
 ];
 
 export const lowestTier = 0;

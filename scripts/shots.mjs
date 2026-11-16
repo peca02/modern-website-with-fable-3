@@ -44,7 +44,7 @@ await page.evaluate(
 );
 
 await mkdir("shots", { recursive: true });
-const file = `shots/ch${chapter}-${width}.png`;
+const file = `shots/ch${chapter}-${width}-${Math.round(local * 100)}.png`;
 await page.screenshot({ path: file });
 const state = await page.evaluate(() => ({
   motion: document.documentElement.dataset.motion,

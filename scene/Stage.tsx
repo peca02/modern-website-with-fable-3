@@ -6,6 +6,7 @@ import { useState } from "react";
 import { lowestTier, pickInitialTier, tierAt } from "@/lib/quality";
 import { store } from "@/lib/store";
 import { Director } from "@/scene/Director";
+import { Page } from "@/scene/Page";
 import { Sheet } from "@/scene/Sheet";
 
 function readForcedTier() {
@@ -17,6 +18,7 @@ export function Stage() {
   const [forced] = useState(readForcedTier);
   const [tier, setTier] = useState(() => forced ?? pickInitialTier());
   const [antialias] = useState(() => tierAt(tier).antialias);
+  const [shadows] = useState(() => tierAt(tier).shadowMap > 0);
   const quality = tierAt(tier);
 
   const lower = () => {
@@ -30,6 +32,8 @@ export function Stage() {
 
   return (
     <Canvas
+      flat
+      shadows={shadows}
       dpr={[1, quality.maxDpr]}
       gl={{ alpha: true, antialias, powerPreference: "high-performance" }}
       camera={{ fov: 30, near: 0.1, far: 60, position: [0, 0, 9] }}
@@ -39,7 +43,8 @@ export function Stage() {
     >
       <PerformanceMonitor onDecline={lower} flipflops={2} />
       <Director />
-      <Sheet />
+      <Page shadowMap={shadows ? quality.shadowMap : 0} />
+      <Sheet shadowMap={shadows ? quality.shadowMap : 0} />
     </Canvas>
   );
 }
