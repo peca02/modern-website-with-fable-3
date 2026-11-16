@@ -81,6 +81,9 @@ Folding instructions: second person, imperative, short steps, dry humor. Concret
 - **Yoshimura vault**: one driver (arc angle per segment). `R = b / (2 sin(φ/2))`, `h² = h0² − (b²/4) tan²(φ/4)`.
 - **Simple-fold sequencer**: ordered simple folds (halves, dart); each step rotates everything on one side of a line; layers are tracked and offset slightly.
 - Poses are arrays of fold drivers, never vertex positions. Patterns swap only while the sheet is flat or edge-on.
+- Folds stop a few degrees short of fully closed and stacked layers are offset slightly, so they never flicker.
+- Scroll-driven folds are pure functions of story position: stepped tracks (steep segment, plateau), no history-dependent tweens. Crease memory is computed from the direction file, not from history.
+- Vertices are computed on the CPU and uploaded each frame; DOM anchors read the same vertices. No GPGPU, no raymarching. At most a few small paper flecks on the upper tiers, kept only if a screenshot shows they help.
 
 ## Signature moments
 
@@ -90,6 +93,16 @@ Folding instructions: second person, imperative, short steps, dry humor. Concret
 4. **Dog-ear cursor.** A small folded corner that unfolds over interactive elements, on its own small fixed layer; fine pointers only.
 5. **Page turn.** The page color changes as a diagonal fold sweeping the viewport (CSS `clip-path`), tied to scroll.
 6. **The dart.** Five folds, then flight; the contact CTA throws it.
+
+## Must not repeat (two earlier sites by the same author)
+
+- Themes: fusion, plasma, magnetic fields, ferrofluid, any shaped liquid. Perfume is forbidden entirely.
+- Names: SKEIN, TARN, and the chapter names Winding, Ignition, Inside, Yield, Still, Reach, Crown, Part, Hold, Settle.
+- Looks: glowing threads, light streaks, hairline rules, hairline serif; mirror-black mass, gloss, merging black forms; a ring or torus; a drop.
+- Type: Archivo, Instrument Sans. Colors: orange-red `#ff5a1f`, ultramarine `#2433ff` and close shades; a near-black page; a cold porcelain page.
+- Motion: viscous settling without overshoot; text rising out of a mask.
+- Moments: a drop preloader, a field slider that thickens letters, a drop or goo cursor, a wordmark in a reflection.
+- Voice: weaving vocabulary (thread, wind, loom, tension); calm descriptive prose built on verbs of matter (pool, bead, crown, reach, settle).
 
 ## Sound
 
