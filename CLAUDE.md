@@ -12,20 +12,22 @@ Replace each `TBD` with the exact version as soon as the trial install proves th
 
 | Package | Version |
 | --- | --- |
-| Node / npm | TBD |
-| next (App Router, static) | TBD |
-| react, react-dom (React Compiler on) | TBD |
-| typescript (strict) | TBD |
-| tailwindcss | TBD |
-| three | TBD |
-| @react-three/fiber | TBD |
-| @react-three/drei | TBD |
-| gsap (ScrollTrigger, ScrollSmoother, SplitText) | TBD |
-| @gsap/react | TBD |
-| react-icons | TBD |
-| playwright (dev only, matches the pre-installed Chromium) | TBD |
+| Node / npm | 22.23.4 / 10.9.9 |
+| next (App Router, static), eslint-config-next | 16.4.6 |
+| react, react-dom (React Compiler on, babel-plugin-react-compiler 1.0.0) | 19.3.1 |
+| typescript (strict) | 6.0.3 (not 7: typescript-eslint needs <6.1) |
+| tailwindcss, @tailwindcss/postcss | 4.3.5 |
+| three, @types/three | 0.187.0 |
+| @react-three/fiber | 9.8.2 |
+| @react-three/drei | 10.7.9 |
+| gsap (ScrollTrigger, ScrollSmoother, SplitText) | 3.15.1 |
+| @gsap/react | 2.1.2 |
+| react-icons | 5.7.0 |
+| eslint | 9.39.5 (not 10: eslint-plugin-import/react/jsx-a11y stop at 9) |
+| playwright (dev only, matches the pre-installed Chromium 1243) | 1.63.0 |
 
-- Renderer: TBD (WebGL + GLSL, or WebGPU; never mixed). Post-processing: TBD.
+- Renderer: WebGL + GLSL (stable R3F 9 has no full WebGPU path; never mixed). Post-processing: none; transparent canvas over the CSS page color, MSAA, one shadow map on the upper quality tiers.
+- Fonts: Anybody (display, `wdth` + `wght` axes) and Literata (text, `opsz`) through `next/font/google`.
 - Not allowed: Lenis, Motion / Framer Motion, GLTF/GLB models, downloaded images, audio or video, icons outside react-icons, fonts outside next/font, external CSS.
 
 ## Working mode and budget
