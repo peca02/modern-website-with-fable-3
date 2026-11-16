@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Anybody, Literata } from "next/font/google";
 import type { ReactNode } from "react";
+import { site } from "@/lib/content";
 import "./globals.css";
 
 const anybody = Anybody({
@@ -18,14 +19,14 @@ const literata = Literata({
 });
 
 export const metadata: Metadata = {
-  title: "Mountain & Valley",
-  description: "A folding office for structures that ship flat.",
+  title: site.name,
+  description: site.tagline,
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className={`${anybody.variable} ${literata.variable}`}>
-      <body className="bg-page text-ink font-text">{children}</body>
+      <body className="stock-fern type-body bg-backdrop text-ink">{children}</body>
     </html>
   );
 }
