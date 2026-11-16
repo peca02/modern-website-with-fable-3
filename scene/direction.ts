@@ -72,8 +72,10 @@ const shiftY: Track = {
   portrait: [
     [0, -0.2],
     [1.1, -0.2],
-    [1.4, -0.24],
-    [5, -0.24],
+    [1.4, -0.15],
+    [1.9, -0.15],
+    [2.1, -0.2],
+    [5, -0.2],
   ],
 };
 // The camera closes in while the sheet packs small, so the block stays a subject and not a speck.
@@ -88,13 +90,13 @@ const distance: Track = {
     [5, 9.6],
   ],
   portrait: [
-    [0, 13.5],
-    [1.05, 14],
-    [1.3, 10.5],
-    [1.58, 6.4],
-    [1.75, 6.4],
-    [2, 13.5],
-    [5, 13.5],
+    [0, 19],
+    [1.05, 19.5],
+    [1.3, 14],
+    [1.58, 8.5],
+    [1.75, 8.5],
+    [2, 19],
+    [5, 19],
   ],
 };
 const tiltX: readonly Key[] = [

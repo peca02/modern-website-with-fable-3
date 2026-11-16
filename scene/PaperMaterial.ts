@@ -81,7 +81,7 @@ const fragmentShader = /* glsl */ `
     // Seen from the back, mountains and valleys trade places.
     vec4 valley = gl_FrontFacing ? vValley : 1.0 - vValley;
     vec4 near = exp(-vCrease / 0.11);
-    vec4 line = exp(-vCrease * vCrease / 0.0009);
+    vec4 line = exp(-vCrease * vCrease / 0.0025);
     float pocket = dot(valley, near);
     float memory = dot(line, valley * 2.0 - 1.0);
 
@@ -91,7 +91,7 @@ const fragmentShader = /* glsl */ `
     vec3 bounce = mix(vec3(1.0), uPage, 0.36);
     vec3 light = bounce * 0.64 + vec3(0.48) * wrap * mix(0.4, 1.0, shadow) + vec3(through) * shadow;
     light *= 1.0 - clamp(pocket * uFold * uOcclusion, 0.0, 0.32);
-    light *= 1.0 - memory * uMemory * 0.035;
+    light *= 1.0 - memory * uMemory * 0.028;
     light *= 1.0 + fiber * 0.035;
 
     vec3 color = mix(tone * light, tone, uPure);
