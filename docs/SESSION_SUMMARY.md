@@ -22,13 +22,15 @@ The plan was approved by the user. Work to the end without asking; the only exce
 - `npm run lint`, `npm run typecheck`, `npm run build` pass; the route is static.
 - Miura model: every triangle edge keeps its flat length to 1e-7 at fold 0.15, 0.5 and 1 (ad-hoc node check).
 - Headless Chromium screenshots: chapter 1 at 1440 (tier 3 and tier 1) and at 375; chapter 2 packed at 1440; chapter 2 mid-fold at 375. Shadow map, contact patch, two-sided color and lens shift all draw; no console errors.
-- Not verified: the fully packed pose at 375, the pack control (no DOM control yet), anchors on screen, real frame rate, real phones, Safari, sound, reduced motion, no-JS and no-WebGL paths, whether Tailwind's `noscript:` variant emits the section background.
+- Not verified: the fully packed pose at 375, the last portrait `shiftY` change in chapter 2 (built, not re-shot), the pack control (no DOM control yet), anchors on screen, real frame rate, real phones, Safari, sound, reduced motion, no-JS and no-WebGL paths, whether Tailwind's `noscript:` variant emits the section background.
 
 ## Roadmap (one phase per session; no agents planned, at most one reviewer at the end)
 
+The last column is the only part of `PROMPT.md` a session reads. Everything else it needs is in the three handover files.
+
 | Session | Phase | Content | Done when | PROMPT.md |
 | --- | --- | --- | --- | --- |
-| 3 | 2b | Yoshimura vault, simple-fold sequencer (halves, dart), turn-over swap, flecks decision, direction for chapters 3-5 | Every state and shot exists, wide and portrait | §10 |
+| 3 | 2b | Yoshimura vault, simple-fold sequencer (halves, dart), turn-over swap, flecks decision, direction for chapters 3-5 | Every state and shot exists, wide and portrait | none (§10 is fully in `docs/ART_DIRECTION.md`) |
 | 4 | 3 | Full copy, chapters as semantic HTML, pins (`data-pinned`), hinge reveals (SplitText after fonts), pack range control, tags on anchors, header, scroll restore after refresh | The story reads and moves; text legible at every scroll position | §6.1, §9.3, §9.5 |
 | 5 | 4 | Preloader + `lib/loadClock.ts` with a time limit, dog-ear cursor, page-turn fold, sound, SVG fallback (no WebGL, lost context, no JS), `app/opengraph-image.tsx`, `app/icon.tsx` | All signature moments work; survives no WebGL and no JS | §9.6, §9.7 |
 | 6 | 5 | Phone, reduced motion, `scripts/flow.mjs`, shots at 375/768/1024/1440/1920, pull request, Serbian report | §12 and §13 complete | §12, §13 |
@@ -36,7 +38,7 @@ The plan was approved by the user. Work to the end without asking; the only exce
 ## Next: phase 2b
 
 1. `lib/fold/yoshimura.ts` and `lib/fold/sequence.ts` implementing `FoldModel` (same attributes as Miura; the sequencer fills `layers` per face).
-2. `scene/Sheet.tsx`: hold one `SheetGeometry` per model and switch the mesh's geometry while the sheet is flat or edge-on (`turn` = 0.5). The Miura track already reaches fold 0 at story 2.08.
+2. `scene/Sheet.tsx`: hold one `SheetGeometry` per model and switch the mesh's geometry while the sheet is flat or edge-on (`turn` = 0.5). Fix the timing first: the Miura fold reaches 0 only at story 2.08 while `turn` starts at 1.98, so the sheet is not flat yet when it is edge-on. Flatten before the turn starts.
 3. Direction for chapters 3-5 in `scene/direction.ts` (replace the placeholder keys after story 2), wide and portrait. `memory` should come from which patterns were folded before the story position.
 4. Decide on flecks from a screenshot. Chapter 4 needs a backlit shot: move the weight of the `through` term, not the light.
 5. To see a story position exactly, shoot with the `local` argument; the temporary DOM does not map 1:1 to chapters yet (pins come in phase 3).
@@ -50,7 +52,7 @@ The plan was approved by the user. Work to the end without asking; the only exce
 - Story position is `chapter index + local progress`, so direction keys stay stable when pin lengths change.
 - With JavaScript the page color is one fixed backdrop (`--backdrop`); sections paint their own background only under `noscript:`.
 - The intro (sheet full-screen, then receding) is time-based and belongs to the preloader (phase 4), not to scroll: at story 0 the sheet is already receded.
-- The page is a desk seen from above: the camera looks straight down, the shadow plane is at z = 0 parallel to the screen, the sheet floats at `lift` and all tilt is on the sheet.
+- The shadow plane is at z = 0 parallel to the screen, the sheet floats at `lift`, and all tilt is on the sheet, never on the camera.
 - Canvas is `flat` (no tone mapping) so token colors are exact. `shadows` is fixed from the initial tier; dropping below tier 2 turns `castShadow` off and shows the contact patch.
 - Ink colors were adjusted from the plan so every ink reaches about 7:1 on its page.
 

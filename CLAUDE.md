@@ -66,10 +66,10 @@ Pro plan, most expensive model, small 5-hour limit: saving tokens matters more t
 /app          → the single route, `globals.css` (tokens), generated OG image and icon
 /components   → DOM layer: server chapters, small client components
 /scene        → everything that imports three
-/lib          → store, beats, content, palette, gsap, quality, loadClock, audio
+/lib          → store, beats, content, palette, gsap, quality, loadClock, audio, `fold/` (fold models, no three imports)
 /hooks        → custom React hooks
 /types        → shared TypeScript types
-/scripts      → Playwright development scripts
+/scripts      → Playwright development scripts, `serve.sh` (build and serve for them)
 /docs         → ART_DIRECTION.md, SESSION_SUMMARY.md
 
 Create folders only when needed. Do not create empty directories.
@@ -138,5 +138,6 @@ Create folders only when needed. Do not create empty directories.
 
 ## Verification
 
+- Verify against the production build (`scripts/serve.sh`), never the development server.
 - Playwright scripts wait for state (an attribute on `<html>`), never for a fixed time. In the cloud the scene renders on the CPU at about one frame per second.
 - Never claim something works if it could not be checked here (real frame rate, real phones, sound, Safari). List it as unverified.

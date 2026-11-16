@@ -80,6 +80,7 @@ Folding instructions: second person, imperative, short steps, dry humor. Concret
 - **Miura-ori**: one driver (fold amount 0-1).
 - **Yoshimura vault**: one driver (arc angle per segment). `R = b / (2 sin(φ/2))`, `h² = h0² − (b²/4) tan²(φ/4)`.
 - **Simple-fold sequencer**: ordered simple folds (halves, dart); each step rotates everything on one side of a line; layers are tracked and offset slightly.
+- No general rigid-origami solver, no collision handling, and no figure that needs them (a crane, for example).
 - Poses are arrays of fold drivers, never vertex positions. Patterns swap only while the sheet is flat or edge-on.
 - Folds stop a few degrees short of fully closed and stacked layers are offset slightly, so they never flicker.
 - Scroll-driven folds are pure functions of story position: stepped tracks (steep segment, plateau), no history-dependent tweens. Crease memory is computed from the direction file, not from history.
@@ -110,4 +111,4 @@ Paper is filtered noise: a short band-passed burst for a crease, a soft rustle t
 
 ## Rendering
 
-WebGL + GLSL, no post-processing. Transparent canvas over the CSS page color. MSAA for crisp facet edges. One shadow map on the two upper quality tiers; fold-angle shading and an alpha contact shadow on the lower ones.
+WebGL + GLSL, no post-processing. Transparent canvas over the CSS page color. The page is a desk seen from straight above: the sheet floats over it and drops its shadow on it. MSAA for crisp facet edges. One shadow map on the two upper quality tiers; fold-angle shading and an alpha contact shadow on the lower ones.
