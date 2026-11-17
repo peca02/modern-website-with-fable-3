@@ -1,42 +1,34 @@
 # Session summary
 
 Branch: `claude/festive-hypatia-jick9a`. Rewritten every session; history lives in git.
-The plan was approved by the user. Work to the end without asking; the only exception is a manual step you cannot do yourself.
-`PROMPT.md` does not need to be read.
+Work to the end without asking; the only exception is a manual step you cannot do yourself. `PROMPT.md` does not need to be read.
 
 ## Done (phases 0-5)
 
-- Stack, tokens, fonts, store, quality tiers, gsap setup: see `CLAUDE.md` and the files themselves (`app/globals.css`, `lib/*`). Variants: `pinned`, `loaded`, `scene-live`, `scene-off` (`data-scene` is `none` or `lost`), `fine`, `wide`, `narrow` (its complement).
-- Fold models in `lib/fold/`, scene in `scene/`, timing and framing in `scene/direction.ts`. DOM chapters in `components/chapters/*` over `Chapter.tsx`.
-- Phase 4: preloader (`lib/loadClock.ts`, `Preloader.tsx`), intro, dog-ear cursor, page turn, synthesized sound, SVG fallback drawing (`lib/drawing.ts`, `SheetDrawing.tsx`), OG image and icon.
-- Phase 5:
-  - `scripts/flow.mjs` (replaces `checks.mjs`): `checks` (21 behavior checks: preloader, keyboard focus rings, sound toggle, cursor, pins, page turn, pack control from the keyboard, tags, lost context and recovery, refresh mid-page, contact jump, stuck load released at 12 s, reduced motion, no JavaScript, no WebGL), `layout` (copy fits its pinned screen at 375x812, 375x667, 768x1024, 1024x768, 1280x720, 1440x900, 1920x1080, with and without the scene), `shots <w>x<h> [stories]`.
-  - Portrait framing follows the copy: `ScrollRig` measures how far down each chapter's copy reaches (`store.viewport.copy`); `direct()` maps the strip below it onto the strip the framing had on 375x812 (`copyFramed`), so on short phones the sheet moves down and shrinks (not below half).
-  - Wide framing: the camera steps back below 16:10 (`framedAspect`), so 1024x768 keeps the sheet out of the copy.
-  - Vault tags never cover the copy or each other (`Tags` pushes them down).
-  - Fallback: the drawing fills the row the copy leaves (grid rows under `pinned:`); chapter 3's facts are a `Chapter` `aside` of paper tags (`paper-tag` utility) over the drawing's foot.
-  - `type-title` is capped by viewport height; the last chapter no longer starts a page turn; the header aligns on center.
-- Other scripts: `serve.sh`, `shots.mjs` (one chapter, one width), `sheet.mjs`, `intro.mjs`, `fallback.mjs <nojs|nowebgl>`, `cursor.mjs`.
+- Phases 0-5 are complete. Pull request [#1](https://github.com/peca02/modern-website-with-fable-3/pull/1) against `main` is open (it updates with every push to the branch), and the Serbian final report was given. The user checked the desktop site by eye and is happy with motion and frame rate; the phone is not yet checked by them.
+- Map: fold models `lib/fold/`, scene `scene/` (timing and framing in `scene/direction.ts`), chapters `components/chapters/*` over `components/Chapter.tsx`, preloader `lib/loadClock.ts` + `components/Preloader.tsx`, fallback `lib/drawing.ts` + `components/SheetDrawing.tsx`, OG image `app/opengraph-image.tsx`. Variants: `pinned`, `loaded`, `scene-live`, `scene-off`, `fine`, `wide`, `narrow`.
+- Portrait framing follows the copy: `ScrollRig` writes `store.viewport.copy` (how far down each chapter's copy reaches); `direct()` maps the strip below it onto the strip it had on 375x812 (`copyFramed`), shrinking the sheet down to `smallest` (0.5). Below 16:10 the wide camera steps back (`framedAspect`). `Tags` pushes chips off the copy and off each other.
+- Scripts: `serve.sh` (build + serve, run first), `flow.mjs checks` (21 behavior checks), `flow.mjs layout` (copy fits its pinned screen at 7 sizes, with and without the scene), `flow.mjs shots <w>x<h> [stories]`, `shots.mjs`, `fallback.mjs <nojs|nowebgl> [width] [story]`, `intro.mjs`, `cursor.mjs`, `sheet.mjs`.
+- Verified: lint, typecheck, build (all routes static), `flow.mjs checks` and `layout`; screenshots at 375 to 1920. Not verifiable here: real phones and touch, Safari, sound, screen reader.
 
-## Verified
+## Next: phase 6, polish (one session)
 
-- `npm run lint`, `npm run typecheck`, `npm run build` pass; `/`, `/icon`, `/opengraph-image` are static. `three` is not in the initial bundle (initial JS about 240 kB gzip: React/Next and GSAP with ScrollSmoother and SplitText).
-- `node scripts/flow.mjs checks` and `layout` pass (21 + 14).
-- Seen in screenshots: live scene at 375x812, 375x667, 768x1024, 1024x768, 1440x900, 1920x1080 (chapters 1-5 at their held moments); no WebGL at 375 and 1280; no JavaScript at 375.
-- Not verified: anything in motion (the cloud draws about one frame a second: intro, folds, reveals, page turn, cursor, dart flight), the sound itself, real frame rate and tier lowering, real phones and touch, Safari, a screen reader, mobile address-bar resizing.
+Order matters; commit and push after each step. Run `flow.mjs layout` after layout changes and `flow.mjs checks` once at the end.
 
-## Known weak spots
+1. **Crease memory.** `direct()` returns `memory: 1` (`scene/direction.ts`), so the shader (`scene/PaperMaterial.ts`, `memory` from `vCrease`/`vValley`) shows creases on a sheet that was never folded. Make memory a pure function of story: per pattern, the running maximum of that pattern's own fold track (`fold`, `arch`, `halves`, `dart`) up to `story`, precomputed from the keys (a monotone envelope), never from history. Check with one shot at story 0.1 (no creases) and one in chapter 4 (creases visible).
+2. **Headline width follows the sheet.** Today only `PackControl` writes `--wdth` on the chapter 2 headline (`type-hero`/`type-display` read `var(--wdth)`, defaults 56/60). Add one writer: a small client component on the gsap ticker that sets `--wdth` on the current chapter's heading from `direct(store.story, ..., store.controls.pack).fold` (`direction.ts` is three-free; `lib/drawing.ts` already imports it), mapped 70 (flat) to 50 (folded), written only when the rounded value changes. `PackControl` stops writing `--wdth` (keep its readout and sound); the pack value reaches the headline through `direct()`. Reduced motion: set each heading once to its held pose. Keep the `flow.mjs` check that packing narrows the chapter 2 headline. Check no heading overflows at 320 and 375 wide (wider `wdth` at 70).
+3. **OG image in Anybody** (rule exception approved by the user, recorded in `CLAUDE.md`). In `app/opengraph-image.tsx` fetch a static instance at build time from the Google Fonts CSS2 API (`family=Anybody:wdth,wght@60,800` and `text=` with the exact strings; with a plain fetch Google answers with TTF, which `next/og` accepts, unlike woff2), pass it as `fonts` to `ImageResponse`, and fall back to the default font if any fetch fails so the build never breaks. A second instance (wide `wdth` 125, weight 500) for the tagline if it reads better. Look at the image at `/opengraph-image`.
+4. **Phone.** Not yet checked on a real phone, so do what can be judged here:
+   - Add 320x568, 360x740 and 390x844 to `sizes` in `flow.mjs`; add a check that the page never scrolls sideways (`scrollWidth <= innerWidth`) at every phone size.
+   - Short phones (375x667): in chapter 3 the tags cover most of the small vault. On `narrow` screens, when the room below the copy is short, show the facts as the static paper-tag row (the `aside` in `StandUp`, today `scene-live:sr-only`) and keep the following `Tags` hidden. In chapter 4 the sheet shrinks to half; try `smallest` 0.65 and check that only the halo-protected body copy is touched.
+   - Touch targets: add a `coarse` variant (`pointer: coarse`) and give header links, the sound toggle, the range thumb and the throw link at least a 44 px hit area without changing the look.
+   - A touch-emulated run (Playwright `devices["iPhone 13"]`, `isMobile`, `hasTouch`) in `flow.mjs`: lower tier picked (no 1024 shadow map), no dog-ear cursor, the range works by tap, chapters pin.
+   - Reduced motion at 375x812: shots of chapters 1 and 3 (text scrolls over the fixed sheet there); fix anything unreadable.
+5. **Finish.** Rewrite this file (done, verified, not verified), add a short "Phase 6" section to the PR #1 description, push, and give the user a short Serbian report.
 
-- The OG image sets its text in the default font of `next/og`.
-- On a 375x667 phone the sheet is small in chapters 3 and 4 (the copy leaves little room) and the vault tags cover most of the vault.
-- At 1024x768 and 1440x900 the sheet's edge still touches the end of some body lines (the halo keeps them readable).
-- The page-turn mirror is computed in shares of the viewport, so the flap is not a true reflection on non-square screens.
-- The vault shows only its outside; `memory` is a constant 1; flecks were dropped.
+## Known weak spots left on purpose
 
-## Next
-
-- Phase 5 is done apart from the pull request and the final report, if they are not already there.
-- The user: fill the placeholders in `lib/content.ts` (`credit.name`, `credit.href`, `site.url`), import the repository into Vercel, check on a real phone and in Safari.
+- The user chose not to fix these: the page-turn flap is not a true reflection on non-square screens; the vault shows only its outside; at 1024x768 and 1440x900 the sheet's edge touches the end of some body lines (the halo keeps them readable).
 
 ## Decisions made without asking (phase 4)
 
@@ -67,4 +59,4 @@ The plan was approved by the user. Work to the end without asking; the only exce
 
 ## Open questions
 
-- None for the user. (The placeholders in `lib/content.ts` are theirs to fill in.)
+- None. The placeholders in `lib/content.ts` (`credit.name`, `credit.href`, `site.url`) are the user's to fill in.

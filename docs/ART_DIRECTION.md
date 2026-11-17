@@ -28,7 +28,7 @@ The page is a sheet of colored stock. Each chapter has its own saturated mid-ton
 
 Two families, clearly distinct.
 
-- **Anybody** (variable `wdth` 50-150, `wght` 100-900): headlines, wordmark, small labels. Headlines are tall and compressed like pleats (`wdth` 50-70, heavy). Small labels are wide (`wdth` 120+), medium weight, sentence case. The width axis is alive: it follows the fold state of the sheet.
+- **Anybody** (variable `wdth` 50-150, `wght` 100-900): headlines, wordmark, small labels. Headlines are tall and compressed like pleats (`wdth` 50-70, heavy). Small labels are wide (`wdth` 120+), medium weight, sentence case. The width axis is alive: every chapter headline runs from `wdth` 70 with the sheet flat to 50 fully folded, driven by the same fold value the scene shows (in chapter 2 that value includes the pack control).
 - **Literata** (variable `opsz`, `wght`): body text. A sturdy book serif, like a printed instruction leaflet.
 - No monospace. No all-caps labels. No single accented word inside a headline.
 - Numbered markers are used only for real sequences (chapters are steps; the process list is steps).
@@ -39,7 +39,7 @@ Two families, clearly distinct.
 - Planes, facets, matte color. A fold reads as a change of tone across a plane, never as a hairline.
 - Two sides of the sheet in two colors. Flat faces with slight softness at a crease.
 - Soft real shadows; matte light with a little wrap; light passing through the paper, darker with every stacked layer; fine fiber grain from a formula.
-- Creases that were folded stay faintly visible after unfolding.
+- Creases that were folded stay faintly visible after unfolding, and only then: a fresh sheet shows none.
 - Not allowed: glow, gloss, mirror reflections, thin lines as a motif, crease-pattern line drawings, cards with rounded corners and grey shadows.
 - DOM shapes follow the same rule: filled flat planes with sharp corners; a folded corner is the only ornament.
 
@@ -114,4 +114,4 @@ Paper is filtered noise: a short band-passed burst for a crease, a soft rustle t
 
 WebGL + GLSL, no post-processing. Transparent canvas over the CSS page color. The page is a desk seen from straight above: the sheet floats over it and drops its shadow on it. MSAA for crisp facet edges. One shadow map on the two upper quality tiers; fold-angle shading and an alpha contact shadow on the lower ones.
 
-Without WebGL, without JavaScript, or while the context is lost, each chapter shows its held pose as flat SVG facets, projected from the same fold models and lit by the same key light, with a solid ink shadow. The OG image and the icon are drawn the same way.
+Without WebGL, without JavaScript, or while the context is lost, each chapter shows its held pose as flat SVG facets, projected from the same fold models and lit by the same key light, with a solid ink shadow. The OG image and the icon are drawn the same way; the OG image sets its type in Anybody.

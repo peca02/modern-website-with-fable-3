@@ -28,7 +28,7 @@ Proven together by a trial install. Install with `--save-exact`. Do not upgrade 
 
 - Renderer: WebGL + GLSL (stable R3F 9 has no full WebGPU path; never mixed). Post-processing: none; transparent canvas over the CSS page color, MSAA, one shadow map on the upper quality tiers.
 - Fonts: Anybody (display, `wdth` + `wght` axes) and Literata (text, `opsz`) through `next/font/google`.
-- Not allowed: Lenis, Motion / Framer Motion, GLTF/GLB models, downloaded images, audio or video, icons outside react-icons, fonts outside next/font, external CSS.
+- Not allowed: Lenis, Motion / Framer Motion, GLTF/GLB models, downloaded images, audio or video, icons outside react-icons, fonts outside next/font (one exception approved by the user: the OG image loads Anybody for `next/og`, which cannot use next/font), external CSS.
 
 ## Working mode and budget
 
@@ -78,7 +78,7 @@ Create folders only when needed. Do not create empty directories.
 
 ## Typography
 
-- Fonts only through next/font. Variable fonts are welcome.
+- Fonts only through next/font (except the OG image, see Stack). Variable fonts are welcome.
 - Body line height 1.4-1.6. Large text 1.1-1.3; hero display type may go down to 0.9, set once in its type token.
 - Line length 50-75 characters.
 - Use the composite type classes defined in `app/globals.css` (font, size, leading and tracking in one class). Fluid sizes with `clamp()`, no per-breakpoint sizes.
