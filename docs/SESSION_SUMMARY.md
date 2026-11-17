@@ -32,15 +32,15 @@ The last column is the only part of `PROMPT.md` a session reads. Everything else
 
 | Session | Phase | Content | Done when | PROMPT.md |
 | --- | --- | --- | --- | --- |
-| 3 | 3 | Full copy, chapters as semantic HTML, pins (`data-pinned`), hinge reveals (SplitText after fonts), pack range control, tags on anchors, header, scroll restore after refresh | The story reads and moves; text legible at every scroll position | §6.1, §9.3, §9.5 |
+| 3 | 3 | Full copy, chapters as semantic HTML, pins (`data-pinned`), hinge reveals (SplitText after fonts), pack range control, tags on anchors, header, scroll restore after refresh | The story reads and moves; text legible at every scroll position | none (§6.1, §9.3 and §9.5 are in the handover files and in "Next" below) |
 | 4 | 4 | Preloader + `lib/loadClock.ts` with a time limit, dog-ear cursor, page-turn fold, sound, SVG fallback (no WebGL, lost context, no JS), `app/opengraph-image.tsx`, `app/icon.tsx` | All signature moments work; survives no WebGL and no JS | §9.6, §9.7 |
 | 5 | 5 | Phone, reduced motion, `scripts/flow.mjs`, shots at 375/768/1024/1440/1920, pull request, Serbian report | §12 and §13 complete | §12, §13 |
 
 ## Next: phase 3
 
-1. Full copy in `lib/content.ts`, chapters as semantic HTML in server components, header.
-2. Pins with the lengths in `lib/beats.ts` so `store.story` covers 0-5 at every width (today the temporary DOM is too short on phones), `data-pinned`, scroll restore after refresh.
-3. Hinge reveals (SplitText after fonts), reduced-motion variant through `gsap.matchMedia()`.
+1. Full copy in `lib/content.ts` (English, voice from `docs/ART_DIRECTION.md`), chapters as semantic HTML in server components, header. The footer carries one discreet line: a note that the brand is fictional (a concept site) and a "Design & build" credit from the two placeholders in `lib/content.ts`, which the user fills in.
+2. Pins with the lengths in `lib/beats.ts` so `store.story` covers 0-5 at every width (today the temporary DOM is too short on phones). A chapter is an ordinary vertical flow in HTML; a client component sets `data-pinned` when motion is allowed and a custom Tailwind variant (`in-data-pinned:`, check the syntax against Tailwind 4.3.5) turns the flow into a pinned scene. Fixed elements (canvas, header, later the cursor) stay outside the ScrollSmoother wrapper. After a refresh mid-page the site restores the scroll position itself, only once the pins exist.
+3. Hinge reveals: SplitText line by line, only after the fonts are loaded (and, from phase 4, after the preloader has released). Reduced-motion variant through `gsap.matchMedia()`: no pins, no smooth scroll, no hinge, each chapter shows its own held pose.
 4. Pack range control: writes `store.controls.pack` and the headline's `--wdth`; readout from `model.extent` (the scene can write it into the store).
 5. Tags on `store.anchors` in chapter 3 (`crown`, `foot`, `mouth`).
 6. Lay text and scene out together: wide shots put the sheet right in chapters 1, 3, 5 and left in 2, 4; portrait puts it in the lower half. Re-shoot every chapter once the DOM is real and adjust `scene/direction.ts`.
