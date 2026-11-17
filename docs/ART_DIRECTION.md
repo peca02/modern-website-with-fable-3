@@ -56,7 +56,7 @@ Two families, clearly distinct.
 - Sequences are staccato: fold, pause, fold.
 - DOM text opens on a hinge: each line rotates open from its top edge, and folds shut the same way when its chapter leaves. No mask rises, no fade-and-slide.
 - Eases (in `lib/gsap.ts`): `crease` (fast start, hard stop), `spring` (hard stop with a small overshoot), `flat` (linear, for scrubbed values). Durations: `snap` 0.25s, `fold` 0.6s, `turn` 1.1s.
-- Reduced motion: no pins, no smooth scroll, no hinge animation; each chapter shows its own held pose.
+- Reduced motion: no pins, no smooth scroll, no hinge animation; each chapter shows its own held pose. Screens under 600 px tall (small phones, phones held sideways) get the same calm version, since a chapter's copy does not fit one screen; the header then sits on a band of the page color.
 
 ## Voice
 
