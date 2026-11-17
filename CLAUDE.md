@@ -45,8 +45,9 @@ Pro plan, most expensive model, small 5-hour limit: saving tokens matters more t
 - Commit and push after every step that works. The session can stop at any moment.
 - Keep context small: read a file once and only the part needed, keep command output quiet, take screenshots for one chapter and one width per run.
 - One phase per session by default. At the end of a phase write `docs/SESSION_SUMMARY.md` (done, verified, remaining, open questions, file paths, branch), commit, push, and tell the user it is a good moment for a new session.
-- A new session starts by reading this file, `docs/SESSION_SUMMARY.md` and `docs/ART_DIRECTION.md`, not the whole codebase. Keep those three files short.
-- Then: check that the checkout contains the branch named in the summary (fetch it by name and merge if not), run `npm ci` if `node_modules` is missing, read only the `PROMPT.md` sections the summary names, say in one Serbian sentence what the session will do, and do it without waiting for approval.
+- A new session starts from a fresh clone that may be behind the work branch. Before reading anything, fetch the branch the user names and fast-forward to it (`git fetch origin <branch>`, `git merge --ff-only origin/<branch>`); files read before that may be stale.
+- Then read this file, `docs/SESSION_SUMMARY.md` and `docs/ART_DIRECTION.md`, not the whole codebase. Keep those three files short.
+- Then: run `npm ci` if `node_modules` is missing, read only the `PROMPT.md` sections the summary names, say in one Serbian sentence what the session will do, and do it without waiting for approval.
 - Before building complex functionality from scratch, check whether a library already in the stack solves it.
 
 ## Architecture
