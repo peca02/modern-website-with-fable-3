@@ -1,4 +1,5 @@
 import { JumpLink } from "@/components/JumpLink";
+import { SoundToggle } from "@/components/SoundToggle";
 import { navigation, site } from "@/lib/content";
 
 export function Header() {
@@ -7,7 +8,8 @@ export function Header() {
       <JumpLink href="#top" to="start" label={navigation.home}>
         {site.name}
       </JumpLink>
-      <nav aria-label={navigation.label}>
+      <nav aria-label={navigation.label} className="flex items-baseline gap-6">
+        <SoundToggle label={navigation.sound} />
         <JumpLink href="#contact" to="end">
           {navigation.contact}
         </JumpLink>

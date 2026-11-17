@@ -11,6 +11,7 @@ export const navigation = {
   label: "Site",
   home: "Mountain & Valley, back to the first step",
   contact: "Contact",
+  sound: "Sound",
 } as const;
 
 export const preloader = {

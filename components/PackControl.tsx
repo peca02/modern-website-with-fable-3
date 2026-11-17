@@ -1,6 +1,7 @@
 "use client";
 
 import { useId, useRef } from "react";
+import { audio } from "@/lib/audio";
 import { packWidth } from "@/lib/beats";
 import { gsap, useGSAP } from "@/lib/gsap";
 import { store } from "@/lib/store";
@@ -21,6 +22,7 @@ const thumb =
 export function PackControl({ headlineId, label, open, packed, readout, flat }: PackControlProps) {
   const id = useId();
   const output = useRef<HTMLOutputElement>(null);
+  const lastPleat = useRef(0);
 
   useGSAP(() => {
     const headline = document.getElementById(headlineId);
@@ -61,7 +63,14 @@ export function PackControl({ headlineId, label, open, packed, readout, flat }: 
         max={100}
         defaultValue={0}
         onInput={(event) => {
-          store.controls.pack = event.currentTarget.valueAsNumber / 100;
+          const value = event.currentTarget.valueAsNumber;
+          store.controls.pack = value / 100;
+          // One crease for every pleat's worth of travel.
+          const pleat = Math.round(value / 8);
+          if (pleat !== lastPleat.current) {
+            lastPleat.current = pleat;
+            audio.crease(0.6);
+          }
         }}
         className={`h-8 w-full cursor-pointer appearance-none bg-ink/20 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ink ${thumb}`}
       />
