@@ -12,10 +12,10 @@ export function ThrowLink({ href, label, detail }: ThrowLinkProps) {
       onClick={() => {
         store.controls.thrownAt = performance.now();
       }}
-      className="group inline-flex flex-col bg-ink px-6 py-4 text-page [text-shadow:none] transition-transform duration-200 ease-spring hover:-translate-y-1 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ink"
+      className="group inline-flex max-w-full flex-col bg-ink px-6 py-4 text-page [text-shadow:none] transition-transform duration-200 ease-spring hover:-translate-y-1 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ink"
     >
       <span className="type-title">{label}</span>
-      <span className="type-label">{detail}</span>
+      <span className="type-label wrap-anywhere">{detail}</span>
     </a>
   );
 }

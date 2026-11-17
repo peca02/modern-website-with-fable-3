@@ -13,8 +13,8 @@ export function StandUp() {
       side="left"
       {...standUp}
       aside={
-        // With a live scene the same facts are shown as tags that follow the vault (components/Tags.tsx).
-        <div className="flex flex-col gap-2 scene-live:sr-only">
+        // Where there is room, the same facts are shown as tags that follow the vault (components/Tags.tsx).
+        <div className="flex flex-col gap-2 facts-tags:sr-only">
           <h3 className="type-label">{standUp.tagsTitle}</h3>
           <ul className="flex flex-wrap gap-2">
             {standUp.tags.map((tag) => (

@@ -7,6 +7,7 @@
 @custom-variant scene-off (&:where([data-scene="none"] *, [data-scene="lost"] *));
 @custom-variant loaded (&:where([data-loaded] *));
 @custom-variant pinned (&:where([data-pinned] *));
+@custom-variant facts-tags (&:where([data-facts="tags"] *));
 @custom-variant motion-full (&:where([data-motion="full"] *));
 
 @theme {

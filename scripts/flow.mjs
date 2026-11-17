@@ -289,7 +289,8 @@ async function layout(browser) {
     const page = await browser.newPage({ viewport: { width, height } });
     await noWebGL(page);
     await page.goto(base);
-    await html(page, () => "loaded" in document.documentElement.dataset && "pinned" in document.documentElement.dataset);
+    // Below 600 px of height nothing is pinned, so the copy simply flows.
+    await html(page, () => "loaded" in document.documentElement.dataset && document.documentElement.dataset.motion !== undefined);
     const off = await overflow(page);
     await page.evaluate(() => {
       document.documentElement.dataset.scene = "live";

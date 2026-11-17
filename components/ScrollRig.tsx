@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, type ReactNode } from "react";
-import { chapters, pageTurnSpan } from "@/lib/beats";
+import { chapters, pageTurnSpan, tagsRoom } from "@/lib/beats";
 import { gsap, media, ScrollSmoother, ScrollTrigger, useGSAP } from "@/lib/gsap";
 import { stocks } from "@/lib/palette";
 import { store } from "@/lib/store";
@@ -175,6 +175,18 @@ export function ScrollRig({ children }: { children: ReactNode }) {
         if (!copy || stage.clientHeight === 0) return 0;
         return (copy.getBoundingClientRect().bottom - stage.getBoundingClientRect().top) / stage.clientHeight;
       });
+      // The vault's facts float as tags only over a live scene with room for them: a pinned screen, and on
+      // portrait screens enough of it left below the copy. Otherwise they are a static row of paper tags.
+      const standUp = chapters.findIndex((chapter) => chapter.id === "stand-up");
+      const room = 1 - (store.viewport.copy[standUp] ?? 1);
+      const tags =
+        root.dataset.scene === "live" && "pinned" in root.dataset && (store.viewport.wide || room >= tagsRoom);
+      const facts = tags ? "tags" : "static";
+      if (root.dataset.facts !== facts) {
+        root.dataset.facts = facts;
+        // Showing the static row changes the chapter's height when nothing is pinned.
+        ScrollTrigger.refresh();
+      }
     };
     const point = (event: PointerEvent) => {
       store.pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
@@ -182,7 +194,7 @@ export function ScrollRig({ children }: { children: ReactNode }) {
     };
     measure();
     void document.fonts.ready.then(measure);
-    // A live scene hides the fallback facts in chapter 3, which shortens its copy.
+    // Whether the scene is live decides how chapter 3 shows its facts.
     const scene = new MutationObserver(measure);
     scene.observe(document.documentElement, { attributeFilter: ["data-scene"] });
     ScrollTrigger.addEventListener("refresh", measure);

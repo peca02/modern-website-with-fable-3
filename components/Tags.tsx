@@ -45,7 +45,10 @@ export function Tags({ chapter, tags }: TagsProps) {
         const copy = document.querySelector(`#${chapter} [data-copy]`);
 
         const tick = () => {
-          const inWindow = store.story >= tagsWindow[0] && store.story <= tagsWindow[1];
+          const inWindow =
+            document.documentElement.dataset.facts === "tags" &&
+            store.story >= tagsWindow[0] &&
+            store.story <= tagsWindow[1];
           const moving = [];
           for (const item of items) {
             const anchor = store.anchors[item.anchor];

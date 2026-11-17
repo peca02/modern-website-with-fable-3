@@ -309,9 +309,9 @@ const pick = (track: Track, wide: boolean) => (wide ? track.wide : track.portrai
 
 // The portrait tracks are framed on a 375 x 812 phone, where each chapter's copy reaches this far down its
 // screen. On a shorter screen the copy reaches lower: the strip below it is mapped onto the strip it had there,
-// so the sheet moves down and shrinks instead of covering the copy (never below half its size).
+// so the sheet moves down and shrinks instead of covering the copy (never below 0.65 of its size).
 const copyFramed = [0.606, 0.589, 0.668, 0.759, 0.681];
-const smallest = 0.5;
+const smallest = 0.65;
 // The wide tracks are framed at 16:10 and wider. The view angle is vertical, so on a squarer wide screen the
 // sheet would take more of the width and reach into the copy's half: the camera steps back instead.
 const framedAspect = 1.6;

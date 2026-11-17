@@ -23,6 +23,9 @@ export const chapterCount = chapters.length;
 /** Share of a chapter's end over which the page color turns into the next stock. */
 export const pageTurnSpan = 0.25;
 
+/** Share of a portrait screen below chapter 3's copy that the floating tags need; with less they stay a static row. */
+export const tagsRoom = 0.3;
+
 /** Story range in which the vault stands and its tags are shown. */
 export const tagsWindow = [2.64, 2.9] as const;
 
