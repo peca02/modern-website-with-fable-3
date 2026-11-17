@@ -1,4 +1,16 @@
-import { Color, DoubleSide, ShaderMaterial, UniformsLib, UniformsUtils } from "three";
+import { Color, DoubleSide, ShaderMaterial, UniformsLib, UniformsUtils, Vector2 } from "three";
+import { miuraSpec } from "@/lib/fold/miura";
+import { vaultSpec } from "@/lib/fold/yoshimura";
+
+// Crease lines of the earlier patterns on the flat sheet, from the same numbers the models fold with.
+const span = Math.max(miuraSpec.width, miuraSpec.height);
+const miuraColumn = miuraSpec.width / miuraSpec.columns;
+const miuraZig = miuraColumn / Math.tan(miuraSpec.gamma);
+const miuraRow = (miuraSpec.height + miuraZig) / miuraSpec.rows;
+const vaultSide = vaultSpec.width / vaultSpec.segments;
+const vaultRow = vaultSpec.height / vaultSpec.rows;
+const vaultSlope = 1 / Math.hypot(1 / vaultSide, 1 / (2 * vaultRow));
+const glsl = (value: number) => value.toFixed(6);
 
 // The vertex stage mirrors three's own shadow material, so the built-in shadow map keeps working.
 const vertexShader = /* glsl */ `
@@ -36,6 +48,8 @@ const fragmentShader = /* glsl */ `
   uniform float uMemory;
   uniform float uOcclusion;
   uniform float uPure;
+  uniform vec2 uGhost;
+  uniform float uBack;
   varying vec3 vNormal;
   varying vec2 vFlat;
   varying vec4 vCrease;
@@ -59,6 +73,27 @@ const fragmentShader = /* glsl */ `
       mix(hash(cell + vec2(0.0, 1.0)), hash(cell + vec2(1.0, 1.0)), f.x),
       f.y
     );
+  }
+
+  float band(float distance) {
+    return exp(-distance * distance / 0.0025);
+  }
+  float cell(float value) {
+    return abs(fract(value + 0.5) - 0.5);
+  }
+  float miuraLines(vec2 p) {
+    float zig = abs(fract(p.x / ${glsl(miuraColumn * 2)}) * 2.0 - 1.0);
+    float rows = cell((p.y + ${glsl(miuraZig)} * zig) / ${glsl(miuraRow)}) * ${glsl(miuraRow)};
+    float columns = cell(p.x / ${glsl(miuraColumn)}) * ${glsl(miuraColumn)};
+    return max(band(rows), band(columns));
+  }
+  float vaultLines(vec2 p) {
+    float across = p.x / ${glsl(vaultSide)};
+    float along = p.y / ${glsl(vaultRow * 2)};
+    float rows = cell(p.y / ${glsl(vaultRow)}) * ${glsl(vaultRow)};
+    float rising = cell(across - along) * ${glsl(vaultSlope)};
+    float falling = cell(across + along) * ${glsl(vaultSlope)};
+    return max(band(rows), max(band(rising), band(falling)));
   }
 
   void main() {
@@ -91,8 +126,13 @@ const fragmentShader = /* glsl */ `
     vec3 bounce = mix(vec3(1.0), uPage, 0.36);
     vec3 light = bounce * 0.64 + vec3(0.48) * wrap * mix(0.4, 1.0, shadow) + vec3(through) * shadow;
     light *= 1.0 - clamp(pocket * uFold * uOcclusion, 0.0, 0.32);
+    // Held against the light, the sheet shows its layers and its fibers instead of its shading.
+    vec3 lamp = mix(vec3(1.0), uPage, 0.1) * 1.2 / (1.0 + vLayers * 0.2);
+    light = mix(light, lamp, uBack);
     light *= 1.0 - memory * uMemory * 0.028;
-    light *= 1.0 + fiber * 0.035;
+    vec2 sheet = vFlat * ${glsl(span)};
+    light *= 1.0 - (uGhost.x * miuraLines(sheet) + uGhost.y * vaultLines(sheet)) * mix(0.035, 0.06, uBack);
+    light *= 1.0 + fiber * mix(0.035, 0.09, uBack);
 
     vec3 color = mix(tone * light, tone, uPure);
     gl_FragColor = vec4(color, 1.0);
@@ -119,6 +159,8 @@ export class PaperMaterial extends ShaderMaterial {
         uMemory: { value: 1 },
         uOcclusion: { value: 0.5 },
         uPure: { value: 0 },
+        uGhost: { value: new Vector2() },
+        uBack: { value: 0 },
       },
     ]);
     this.face = this.read("uFace");
@@ -147,6 +189,15 @@ export class PaperMaterial extends ShaderMaterial {
   setFold(fold: number, memory: number) {
     this.write("uFold", fold);
     this.write("uMemory", memory);
+  }
+
+  setGhosts(miura: number, vault: number) {
+    const value: unknown = this.uniforms.uGhost?.value;
+    if (value instanceof Vector2) value.set(miura, vault);
+  }
+
+  setBacklight(amount: number) {
+    this.write("uBack", amount);
   }
 
   /** Without a shadow map the pockets of the valleys carry the depth on their own. */

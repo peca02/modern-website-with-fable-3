@@ -2,7 +2,7 @@
 
 export type Key = readonly [at: number, value: number];
 
-export type Pattern = "miura" | "vault";
+export type Pattern = "miura" | "vault" | "halves" | "dart";
 
 export type Shot = {
   /** Lens shift as a share of the viewport: positive x moves the subject right, positive y up. */
@@ -23,6 +23,13 @@ export type Shot = {
   fold: number;
   /** How visible the creases folded so far are. */
   memory: number;
+  /** Creases of patterns folded earlier in the story, still faintly there. */
+  ghostMiura: number;
+  ghostVault: number;
+  /** 1 lights the sheet from behind, so stacked layers read as steps of tone. */
+  backlight: number;
+  /** How far the dart has glided along its nose, in sheet units. */
+  flight: number;
 };
 
 const smooth = (t: number) => t * t * (3 - 2 * t);
@@ -94,6 +101,10 @@ const distance: Track = {
     [2.3, 8.6],
     [2.9, 8.6],
     [3.1, 9.6],
+    [3.3, 8.6],
+    [3.58, 7.2],
+    [3.74, 7.2],
+    [3.9, 9.6],
     [5, 9.6],
   ],
   portrait: [
@@ -106,6 +117,10 @@ const distance: Track = {
     [2.3, 16.5],
     [2.9, 16.5],
     [3.1, 19],
+    [3.3, 16],
+    [3.58, 12],
+    [3.74, 12],
+    [3.9, 19],
     [5, 19],
   ],
 };
@@ -118,9 +133,11 @@ const tiltX: readonly Key[] = [
   [2.25, -0.75],
   [2.7, -0.98],
   [2.9, -0.98],
-  [3.1, -0.6],
-  [4, -0.8],
-  [5, -0.6],
+  [3.1, -0.42],
+  [4.15, -0.42],
+  [4.62, -0.5],
+  [4.84, -1.12],
+  [5, -1.12],
 ];
 const tiltY: readonly Key[] = [
   [0, -0.22],
@@ -131,8 +148,11 @@ const tiltY: readonly Key[] = [
   [2.25, 0.15],
   [2.7, 0.3],
   [2.9, 0.3],
-  [3.1, -0.24],
-  [5, -0.24],
+  [3.1, -0.22],
+  [3.9, -0.22],
+  [4.2, 0.15],
+  [4.84, 0.3],
+  [5, 0.3],
 ];
 const spin: readonly Key[] = [
   [0, 0.2],
@@ -143,8 +163,10 @@ const spin: readonly Key[] = [
   [2.25, 0.05],
   [2.7, 0.08],
   [2.9, 0.08],
-  [3.1, 0.18],
-  [5, 0.18],
+  [3.1, 0.14],
+  [4.62, 0.12],
+  [4.84, 0.5],
+  [5, 0.56],
 ];
 const lift: readonly Key[] = [
   [0, 0.95],
@@ -155,7 +177,9 @@ const lift: readonly Key[] = [
   [2.25, 1.5],
   [2.9, 1.5],
   [3.1, 0.95],
-  [5, 0.95],
+  [4.5, 0.95],
+  [4.74, 1.5],
+  [5, 1.5],
 ];
 const turn: readonly Key[] = [
   [0, 0],
@@ -187,6 +211,38 @@ const arch: readonly Key[] = [
   [2.9, 1],
   [3.04, 0],
 ];
+// Chapter 4: in half, in quarters, hold against the light, open again.
+const halves: readonly Key[] = [
+  [3.14, 0],
+  [3.3, 1],
+  [3.42, 1],
+  [3.58, 2],
+  [3.74, 2],
+  [3.9, 0],
+];
+const backlight: readonly Key[] = [
+  [3.08, 0],
+  [3.24, 1],
+  [3.78, 1],
+  [3.92, 0],
+];
+// Chapter 5: five staccato folds, then the dart leaves.
+const dart: readonly Key[] = [
+  [4.2, 0],
+  [4.3, 1],
+  [4.36, 1],
+  [4.46, 2],
+  [4.52, 2],
+  [4.62, 3],
+  [4.66, 3],
+  [4.74, 4],
+  [4.76, 4],
+  [4.84, 5],
+];
+const flight: readonly Key[] = [
+  [4.88, 0],
+  [5, 1.4],
+];
 // The pack control only acts inside chapter 2.
 const packWindow: readonly Key[] = [
   [0.9, 0],
@@ -208,7 +264,15 @@ export function direct(
   const scrolled = sample(fold, story, hinge);
   const packed = pack * sample(packWindow, story);
   const turned = sample(turn, story, hinge);
-  const pattern: Pattern = turned >= 0.5 ? "vault" : "miura";
+  // Patterns change only where the tracks above leave the sheet flat.
+  const pattern: Pattern =
+    story >= 3.95 ? "dart" : story >= 3.06 ? "halves" : story >= 2 && turned >= 0.5 ? "vault" : "miura";
+  const folds: Record<Pattern, number> = {
+    miura: scrolled + (1 - scrolled) * packed,
+    vault: sample(arch, story, hinge),
+    halves: sample(halves, story, hinge),
+    dart: sample(dart, story, hinge),
+  };
   return {
     shiftX: sample(pick(shiftX, wide), story),
     shiftY: sample(pick(shiftY, wide), story),
@@ -219,7 +283,11 @@ export function direct(
     turn: turned,
     pattern,
     lift: sample(lift, story),
-    fold: pattern === "vault" ? sample(arch, story, hinge) : scrolled + (1 - scrolled) * packed,
+    fold: folds[pattern],
     memory: 1,
+    ghostMiura: pattern === "miura" ? 0 : 1,
+    ghostVault: pattern === "halves" || pattern === "dart" ? 1 : 0,
+    backlight: sample(backlight, story),
+    flight: sample(flight, story),
   };
 }

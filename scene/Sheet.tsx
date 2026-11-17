@@ -4,6 +4,7 @@ import { useFrame } from "@react-three/fiber";
 import { useRef, useState } from "react";
 import { Color, Vector3, type Group, type Mesh } from "three";
 import { createMiura } from "@/lib/fold/miura";
+import { createSequence, dartSpec, halvesSpec } from "@/lib/fold/sequence";
 import type { FoldModel } from "@/lib/fold/types";
 import { createVault } from "@/lib/fold/yoshimura";
 import { sheetFace } from "@/lib/palette";
@@ -19,7 +20,12 @@ type Folded = { model: FoldModel; geometry: SheetGeometry };
 
 function createPatterns(): Record<Pattern, Folded> {
   const fold = (model: FoldModel) => ({ model, geometry: new SheetGeometry(model.mesh) });
-  return { miura: fold(createMiura()), vault: fold(createVault()) };
+  return {
+    miura: fold(createMiura()),
+    vault: fold(createVault()),
+    halves: fold(createSequence(halvesSpec)),
+    dart: fold(createSequence(dartSpec)),
+  };
 }
 
 export function Sheet({ shadowMap }: { shadowMap: number }) {
@@ -42,13 +48,16 @@ export function Sheet({ shadowMap }: { shadowMap: number }) {
     if (paper.current && paper.current.geometry !== geometry) paper.current.geometry = geometry;
 
     material.setColors(sheetFace, reverseAt(story), backdropAt(story, "page", page));
-    material.setFold(shot.fold, shot.memory);
+    material.setFold(Math.min(1, shot.fold), shot.memory);
+    material.setGhosts(shot.ghostMiura, shot.ghostVault);
+    material.setBacklight(shot.backlight);
     material.setOcclusion(shadowMap > 0 ? 0.45 : 0.8);
 
     const sheet = group.current;
     if (!sheet) return;
     sheet.position.set(0, 0, shot.lift);
     sheet.rotation.set(shot.tiltX, shot.tiltY + shot.turn * Math.PI, shot.spin);
+    sheet.translateX(shot.flight);
     sheet.updateMatrixWorld();
 
     // DOM followers read the same vertices the picture is drawn from. Anchors of the other patterns hide.
