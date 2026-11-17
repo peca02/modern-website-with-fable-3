@@ -14,6 +14,28 @@ function stockAt(index: number) {
   return pages[Math.min(pages.length - 1, Math.max(0, index))] ?? stocks.fern;
 }
 
+const polygon = (points: readonly (readonly [number, number])[]) =>
+  `polygon(${points.map(([x, y]) => `${(x * 100).toFixed(2)}% ${(y * 100).toFixed(2)}%`).join(", ")})`;
+
+/**
+ * The page turn as two shapes in shares of the viewport: the part of the next page already showing, and the
+ * flap, which is that part mirrored over the fold line. The line runs from the bottom right corner to the top left.
+ */
+function turnShapes(turn: number): [page: string, flap: string] {
+  const k = 2 * (1 - turn);
+  if (k >= 1) {
+    const c = k - 1;
+    return [
+      polygon([[1, c], [1, c], [1, 1], [c, 1], [c, 1]]),
+      polygon([[1, c], [1, c], [c, c], [c, 1], [c, 1]]),
+    ];
+  }
+  return [
+    polygon([[k, 0], [1, 0], [1, 1], [0, 1], [0, k]]),
+    polygon([[k, 0], [k, k - 1], [k - 1, k - 1], [k - 1, k], [0, k]]),
+  ];
+}
+
 export function ScrollRig({ children }: { children: ReactNode }) {
   const wrapper = useRef<HTMLDivElement>(null);
   const content = useRef<HTMLDivElement>(null);
@@ -118,8 +140,13 @@ export function ScrollRig({ children }: { children: ReactNode }) {
           painted = key;
           const from = stockAt(index);
           const to = stockAt(index + 1);
-          root.style.setProperty("--backdrop", gsap.utils.interpolate(from.page, to.page, turn));
-          root.style.setProperty("--backdrop-ink", gsap.utils.interpolate(from.ink, to.ink, turn));
+          const [page, flap] = turnShapes(turn);
+          root.style.setProperty("--backdrop", from.page);
+          root.style.setProperty("--backdrop-ink", turn > 0.5 ? to.ink : from.ink);
+          root.style.setProperty("--turn", to.page);
+          root.style.setProperty("--turn-ink", to.ink);
+          root.style.setProperty("--turn-page", page);
+          root.style.setProperty("--turn-flap", flap);
         }
       };
       gsap.ticker.add(tick);
@@ -131,6 +158,7 @@ export function ScrollRig({ children }: { children: ReactNode }) {
         delete root.dataset.pinned;
         root.style.removeProperty("--backdrop");
         root.style.removeProperty("--backdrop-ink");
+        for (const name of ["--turn", "--turn-ink", "--turn-page", "--turn-flap"]) root.style.removeProperty(name);
       };
     });
 

@@ -45,6 +45,8 @@
   --color-ink: var(--ink);
   --color-backdrop: var(--backdrop, var(--page));
   --color-backdrop-ink: var(--backdrop-ink, var(--ink));
+  --color-turn: var(--turn, transparent);
+  --color-turn-flap: color-mix(in oklab, var(--turn, transparent) 82%, var(--turn-ink, transparent));
 }
 
 @utility stock-fern {
