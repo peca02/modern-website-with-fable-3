@@ -30,6 +30,8 @@ export type Shot = {
   backlight: number;
   /** How far the dart has glided along its nose, in sheet units. */
   flight: number;
+  /** 1 paints the sheet in its pure token color, as the preloader does. */
+  pure: number;
 };
 
 const smooth = (t: number) => t * t * (3 - 2 * t);
@@ -262,6 +264,21 @@ function thrown(seconds: number) {
   return -16 * Math.pow(1 - (seconds - 1.7) / 1.7, 3);
 }
 
+/** Seconds the sheet takes to recede from the preloader into its chapter. */
+const introSeconds = 1.8;
+
+/** 1 while the preloader is up (the sheet lies flat and fills the screen), 0 once it has receded. */
+export function introAt(load: { at: number; intro: boolean }, reduced: boolean) {
+  if (reduced) return 0;
+  if (load.at === 0) return 1;
+  if (!load.intro) return 0;
+  const seconds = (performance.now() - load.at) / 1000;
+  return seconds >= introSeconds ? 0 : 1 - hinge(seconds / introSeconds);
+}
+
+// Half the height of the view at distance 1 (the camera's field of view is 30 degrees).
+const viewSlope = Math.tan((15 * Math.PI) / 180);
+
 const pick = (track: Track, wide: boolean) => (wide ? track.wide : track.portrait);
 
 export function direct(
@@ -272,7 +289,13 @@ export function direct(
   wide: boolean,
   pack = 0,
   sinceThrow = -1,
+  intro = 0,
+  aspect = 1,
 ): Shot {
+  // The intro pose: flat, square to the camera and close enough to cover the whole view.
+  const enter = (value: number, target = 0) => value + (target - value) * intro;
+  const raised = sample(lift, story);
+  const cover = raised + 0.94 * Math.min(1.2 / viewSlope, 1.7 / (viewSlope * aspect));
   const scrolled = sample(fold, story, hinge);
   const packed = pack * sample(packWindow, story);
   const turned = sample(turn, story, hinge);
@@ -286,20 +309,21 @@ export function direct(
     dart: sample(dart, story, hinge),
   };
   return {
-    shiftX: sample(pick(shiftX, wide), story),
-    shiftY: sample(pick(shiftY, wide), story),
-    distance: sample(pick(distance, wide), story),
-    tiltX: sample(tiltX, story) + pointerY * 0.08 + Math.sin(time * 0.4) * 0.015,
-    tiltY: sample(tiltY, story) + pointerX * 0.12,
-    spin: sample(spin, story),
+    shiftX: enter(sample(pick(shiftX, wide), story)),
+    shiftY: enter(sample(pick(shiftY, wide), story)),
+    distance: enter(sample(pick(distance, wide), story), cover),
+    tiltX: enter(sample(tiltX, story) + pointerY * 0.08 + Math.sin(time * 0.4) * 0.015),
+    tiltY: enter(sample(tiltY, story) + pointerX * 0.12),
+    spin: enter(sample(spin, story)),
     turn: turned,
     pattern,
-    lift: sample(lift, story),
-    fold: folds[pattern],
+    lift: raised,
+    fold: enter(folds[pattern]),
     memory: 1,
     ghostMiura: pattern === "miura" ? 0 : 1,
     ghostVault: pattern === "halves" || pattern === "dart" ? 1 : 0,
     backlight: sample(backlight, story),
     flight: sample(flight, story) + (story >= 4.84 ? thrown(sinceThrow) : 0),
+    pure: Math.min(1, Math.max(0, intro * 2.5 - 1.5)),
   };
 }

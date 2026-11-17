@@ -10,7 +10,7 @@ import { createVault } from "@/lib/fold/yoshimura";
 import { sheetFace } from "@/lib/palette";
 import { store } from "@/lib/store";
 import { ContactMaterial } from "@/scene/ContactMaterial";
-import { direct, type Pattern } from "@/scene/direction";
+import { direct, introAt, type Pattern } from "@/scene/direction";
 import { keyLight } from "@/scene/Page";
 import { PaperMaterial } from "@/scene/PaperMaterial";
 import { SheetGeometry } from "@/scene/SheetGeometry";
@@ -50,6 +50,8 @@ export function Sheet({ shadowMap }: { shadowMap: number }) {
       viewport.wide,
       controls.pack,
       sinceThrow,
+      introAt(store.load, store.reduced),
+      size.width / size.height,
     );
 
     const { model, geometry } = patterns[shot.pattern];
@@ -62,12 +64,15 @@ export function Sheet({ shadowMap }: { shadowMap: number }) {
       store.sheet.y = model.extent.y;
       store.sheet.z = model.extent.z;
     }
+    store.sheet.crease = shot.fold;
+    store.sheet.flight = shot.flight;
     if (paper.current && paper.current.geometry !== geometry) paper.current.geometry = geometry;
 
     material.setColors(sheetFace, reverseAt(story), backdropAt(story, "page", page));
     material.setFold(Math.min(1, shot.fold), shot.memory);
     material.setGhosts(shot.ghostMiura, shot.ghostVault);
     material.setBacklight(shot.backlight);
+    material.setPure(shot.pure);
     material.setOcclusion(shadowMap > 0 ? 0.45 : 0.8);
 
     const sheet = group.current;

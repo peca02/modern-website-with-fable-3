@@ -61,6 +61,8 @@ export function Reveals() {
       });
 
       const tick = () => {
+        // Nothing opens under the preloader; the copy unfolds once the sheet has taken over.
+        if (store.load.at === 0) return;
         for (const item of items) {
           const open =
             item.forced || (store.story >= item.at - (item.open ? slack : 0) && store.story < item.until);

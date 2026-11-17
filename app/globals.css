@@ -3,6 +3,7 @@
 @custom-variant wide (@media (min-aspect-ratio: 5/4) and (min-width: 48rem));
 @custom-variant fine (@media (pointer: fine));
 @custom-variant scene-live (&:where([data-scene="live"] *));
+@custom-variant scene-off (&:where([data-scene="none"] *, [data-scene="lost"] *));
 @custom-variant loaded (&:where([data-loaded] *));
 @custom-variant pinned (&:where([data-pinned] *));
 @custom-variant motion-full (&:where([data-motion="full"] *));

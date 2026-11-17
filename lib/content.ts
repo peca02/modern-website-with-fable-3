@@ -13,6 +13,17 @@ export const navigation = {
   contact: "Contact",
 } as const;
 
+export const preloader = {
+  title: "Step 0. Unwrap",
+  steps: {
+    fonts: "Set the type.",
+    code: "Fetch the sheet.",
+    context: "Clear the desk.",
+    shaders: "Mix the pulp.",
+    frame: "Lay it flat.",
+  },
+} as const;
+
 export const startFlat = {
   step: "Step 1",
   name: "Start Flat",

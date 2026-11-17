@@ -5,11 +5,12 @@ import { StartFlat } from "@/components/chapters/StartFlat";
 import { StayCreased } from "@/components/chapters/StayCreased";
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
+import { Preloader } from "@/components/Preloader";
 import { Reveals } from "@/components/Reveals";
 import { SceneLoader } from "@/components/SceneLoader";
 import { ScrollRig } from "@/components/ScrollRig";
 import { Tags } from "@/components/Tags";
-import { standUp } from "@/lib/content";
+import { preloader, standUp } from "@/lib/content";
 
 export default function Page() {
   return (
@@ -28,6 +29,7 @@ export default function Page() {
       </ScrollRig>
       <Tags tags={standUp.tags} />
       <Reveals />
+      <Preloader title={preloader.title} steps={preloader.steps} />
     </>
   );
 }
