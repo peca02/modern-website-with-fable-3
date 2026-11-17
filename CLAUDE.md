@@ -141,6 +141,6 @@ Create folders only when needed. Do not create empty directories.
 ## Verification
 
 - Verify against the production build (`scripts/serve.sh`), never the development server.
-- After changes to scroll, pins, reveals or controls run `node scripts/checks.mjs` (behavior checks, no pictures).
+- After changes to scroll, pins, reveals or controls run `node scripts/flow.mjs checks`; after layout or type changes `node scripts/flow.mjs layout` (no pictures).
 - Playwright scripts wait for state (an attribute on `<html>`), never for a fixed time. In the cloud the scene renders on the CPU at about one frame per second.
 - Never claim something works if it could not be checked here (real frame rate, real phones, sound, Safari). List it as unverified.

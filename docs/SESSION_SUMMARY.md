@@ -2,46 +2,41 @@
 
 Branch: `claude/festive-hypatia-jick9a`. Rewritten every session; history lives in git.
 The plan was approved by the user. Work to the end without asking; the only exception is a manual step you cannot do yourself.
-`PROMPT.md` does not need to be read: what phase 5 needs from it (§1 priorities, §2-§4 session rules, §12, §13) is in this file and in `CLAUDE.md`. Open a section only if a rule here is unclear.
+`PROMPT.md` does not need to be read.
 
-## Done (phases 0-4)
+## Done (phases 0-5)
 
-- Stack, tokens, fonts, store, quality tiers, gsap setup: see `CLAUDE.md` and the files themselves (`app/globals.css`, `lib/*`). Variants: `pinned`, `loaded`, `scene-live`, `scene-off` (`data-scene` is `none` or `lost`), `fine`, `wide`.
-- Fold models in `lib/fold/`, scene in `scene/` (`Sheet`, `PaperMaterial`, `Page`, `ContactMaterial`, `stock`, `Director`, `Stage`), timing in `scene/direction.ts`.
-- `lib/content.ts` (all copy; placeholders: `credit.name`, `credit.href`, `site.url`), `lib/beats.ts` (chapter lengths, holds, `pageTurnSpan`, `tagsWindow`, `packWidth`).
-- DOM: `Chapter.tsx` + `components/chapters/*`, `Header`, `Footer`, `ScrollRig` (smoother, pins, `store.story`, scroll restore, page turn), `Reveals` (hinges), `PackControl`, `Tags`, `JumpLink`, `ThrowLink`.
-- Phase 4:
-  - Preloader: `lib/loadClock.ts` (phases fonts, code, context, shaders, frame; `skipScene()` without WebGL), `components/Preloader.tsx` (server-rendered overlay in the sheet color, steps light up, folds shut, sets `data-loaded` and `store.load`; 12 s limit). `Reveals` waits for `store.load.at`. Intro: `introAt()` and the `intro`/`aspect` arguments of `direct()`; the sheet covers the view in its pure color (`shot.pure`) and recedes over 1.8 s. Skipped under reduced motion and when the page loads scrolled past story 0.5.
-  - `components/Cursor.tsx`: dog-ear on its own fixed layer, fine pointers only, unfolds over `a, button, input, label, summary`.
-  - Page turn: `components/PageTurn.tsx` (two fixed layers) + `turnShapes()` in `ScrollRig` write `--turn`, `--turn-ink`, `--turn-page`, `--turn-flap`; `--backdrop` stays the current page, `--backdrop-ink` flips at half way.
-  - Sound: `lib/audio.ts` (room tone per chapter, rustle from `store.velocity` and fold rate, crease bursts on fold steps and on the pack control), `components/SoundToggle.tsx` in the header creates the context on the first click; suspended when off or hidden. The scene writes `store.sheet.crease` and `store.sheet.flight`.
-  - Fallback: `lib/drawing.ts` projects the fold models (pose = the chapter's `hold`) into flat facets; `components/SheetDrawing.tsx` renders them in every chapter, shown only under `noscript:` or `scene-off:`. `Stage` detects WebGL 2 and listens for context loss.
-  - `app/opengraph-image.tsx` and `app/icon.tsx` use the same drawing code; `metadataBase` comes from `site.url`.
-  - The shadow fades while the dart flies out (`ShadeMaterial` in `scene/Page.tsx`).
-- Scripts: `serve.sh`, `shots.mjs`, `sheet.mjs`, `checks.mjs`, `intro.mjs` (preloader and handover frames), `fallback.mjs <nojs|nowebgl>`, `cursor.mjs`.
+- Stack, tokens, fonts, store, quality tiers, gsap setup: see `CLAUDE.md` and the files themselves (`app/globals.css`, `lib/*`). Variants: `pinned`, `loaded`, `scene-live`, `scene-off` (`data-scene` is `none` or `lost`), `fine`, `wide`, `narrow` (its complement).
+- Fold models in `lib/fold/`, scene in `scene/`, timing and framing in `scene/direction.ts`. DOM chapters in `components/chapters/*` over `Chapter.tsx`.
+- Phase 4: preloader (`lib/loadClock.ts`, `Preloader.tsx`), intro, dog-ear cursor, page turn, synthesized sound, SVG fallback drawing (`lib/drawing.ts`, `SheetDrawing.tsx`), OG image and icon.
+- Phase 5:
+  - `scripts/flow.mjs` (replaces `checks.mjs`): `checks` (21 behavior checks: preloader, keyboard focus rings, sound toggle, cursor, pins, page turn, pack control from the keyboard, tags, lost context and recovery, refresh mid-page, contact jump, stuck load released at 12 s, reduced motion, no JavaScript, no WebGL), `layout` (copy fits its pinned screen at 375x812, 375x667, 768x1024, 1024x768, 1280x720, 1440x900, 1920x1080, with and without the scene), `shots <w>x<h> [stories]`.
+  - Portrait framing follows the copy: `ScrollRig` measures how far down each chapter's copy reaches (`store.viewport.copy`); `direct()` maps the strip below it onto the strip the framing had on 375x812 (`copyFramed`), so on short phones the sheet moves down and shrinks (not below half).
+  - Wide framing: the camera steps back below 16:10 (`framedAspect`), so 1024x768 keeps the sheet out of the copy.
+  - Vault tags never cover the copy or each other (`Tags` pushes them down).
+  - Fallback: the drawing fills the row the copy leaves (grid rows under `pinned:`); chapter 3's facts are a `Chapter` `aside` of paper tags (`paper-tag` utility) over the drawing's foot.
+  - `type-title` is capped by viewport height; the last chapter no longer starts a page turn; the header aligns on center.
+- Other scripts: `serve.sh`, `shots.mjs` (one chapter, one width), `sheet.mjs`, `intro.mjs`, `fallback.mjs <nojs|nowebgl>`, `cursor.mjs`.
 
 ## Verified
 
-- `npm run lint`, `npm run typecheck`, `npm run build` pass; `/`, `/icon`, `/opengraph-image` are static.
-- `node scripts/checks.mjs` passes (19 checks): the phase 3 list plus preloader covers and lets go with 5 phases done, sound toggle switches, dog-ear unfolds over a link, page turn writes fold shapes, no WebGL releases the preloader and shows the drawing.
-- Seen in screenshots at 1280/1440: preloader and the frames after it, two page-turn moments, the no-JavaScript page (all five drawings), the no-WebGL chapter 3, the OG image, the cursor folded and unfolded.
-- Not verified: the intro in motion (the cloud draws about one frame a second, so the receding was never seen), the sound itself (only the toggle state), a lost WebGL context, the 12 s stuck-load release, the cursor in motion, the icon by eye, everything at 375 / 768 / 1024 / 1920 for the phase 4 features, plus the phase 3 list: short wide viewports, folds and reveals in motion, real frame rate, real phones, Safari, screen reader.
+- `npm run lint`, `npm run typecheck`, `npm run build` pass; `/`, `/icon`, `/opengraph-image` are static. `three` is not in the initial bundle (initial JS about 240 kB gzip: React/Next and GSAP with ScrollSmoother and SplitText).
+- `node scripts/flow.mjs checks` and `layout` pass (21 + 14).
+- Seen in screenshots: live scene at 375x812, 375x667, 768x1024, 1024x768, 1440x900, 1920x1080 (chapters 1-5 at their held moments); no WebGL at 375 and 1280; no JavaScript at 375.
+- Not verified: anything in motion (the cloud draws about one frame a second: intro, folds, reveals, page turn, cursor, dart flight), the sound itself, real frame rate and tier lowering, real phones and touch, Safari, a screen reader, mobile address-bar resizing.
 
 ## Known weak spots
 
-- The OG image sets its text in the default font of `next/og` (Anybody is only reachable through next/font).
-- Without WebGL at 720 px height chapter 3's copy (it then shows the tag facts too) is taller than the pinned screen and is cut at the bottom.
+- The OG image sets its text in the default font of `next/og`.
+- On a 375x667 phone the sheet is small in chapters 3 and 4 (the copy leaves little room) and the vault tags cover most of the vault.
+- At 1024x768 and 1440x900 the sheet's edge still touches the end of some body lines (the halo keeps them readable).
 - The page-turn mirror is computed in shares of the viewport, so the flap is not a true reflection on non-square screens.
 - The vault shows only its outside; `memory` is a constant 1; flecks were dropped.
 
-## Next: phase 5 (the last one)
+## Next
 
-- Priorities, in order: visual quality, originality, performance, how well it works on a phone.
-- Text over the scene legible at every scroll position (HARD); start by fixing the no-WebGL overflow in chapter 3 above. The phone gets the same site on a lower tier with its own portrait framing.
-- `scripts/flow.mjs` (grow it from `scripts/checks.mjs`) walks through: preloader, keyboard, controls, sound toggle, refresh mid-page, no WebGL, lost context, stuck load, reduced motion, no JavaScript. Screenshots at 375, 768, 1024, 1440 and 1920.
-- One pull request against the default branch, text in English.
-- A report in Serbian with four parts: done, verified, not verified, weaker than wanted. Plus what the user does by hand: fill the placeholders in `lib/content.ts` (`credit`, `site.url`), import the repository into Vercel.
-- If the session grows large, stop after `flow.mjs` and the fixes (summary, commit, push); the pull request and the report can be a short final session.
+- Phase 5 is done apart from the pull request and the final report, if they are not already there.
+- The user: fill the placeholders in `lib/content.ts` (`credit.name`, `credit.href`, `site.url`), import the repository into Vercel, check on a real phone and in Safari.
 
 ## Decisions made without asking (phase 4)
 
@@ -66,7 +61,7 @@ The plan was approved by the user. Work to the end without asking; the only exce
 
 ## Cloud notes
 
-- Use `scripts/serve.sh` before screenshots or checks. One build plus one shot takes about 90 seconds; `checks.mjs` about 2 minutes.
+- Use `scripts/serve.sh` before screenshots or checks. One build plus one shot takes about 90 seconds; `flow.mjs checks` about 3 minutes, `layout` under one.
 - An interrupted `npm ci` leaves a broken `node_modules` (missing type exports, wrong eslint): run `npm ci` again.
 - If the permission classifier blocks installs or commits, stop and ask the user to allow them explicitly in chat.
 
