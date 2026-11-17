@@ -3,51 +3,42 @@
 Branch: `claude/festive-hypatia-jick9a`. Rewritten every session; history lives in git.
 The plan was approved by the user. Work to the end without asking; the only exception is a manual step you cannot do yourself.
 
-## Done (phases 0, 1, 2a, 2b and 3)
+## Done (phases 0-4)
 
-- Stack, tokens, fonts, store, quality tiers, gsap setup: see `CLAUDE.md` and the files themselves (`app/globals.css`, `lib/*`). New in phase 3: variant `pinned` (`[data-pinned]` on `<html>`), `text-hero` / `text-display` are capped by viewport height, `ScrollTrigger.config({ ignoreMobileResize: true })`.
-- Fold models in `lib/fold/` (Miura, Yoshimura vault, simple-fold sequencer with `halvesSpec` and `dartSpec`), scene in `scene/` (`Sheet`, `PaperMaterial`, `Page`, `ContactMaterial`, `stock`, `Director`, `Stage`). Unchanged this session except: `Sheet` writes `store.sheet` (live Miura fold and bounding size) and passes the time since a throw; `stock.reverseAt` clamps at story 5.
-- `lib/content.ts`: the full copy, one object per chapter plus `site`, `navigation`, `footer`, `credit` (two placeholders the user fills in).
-- `lib/beats.ts`: `length` (chapter height in screens: 2, 4, 4, 4, 4; pinned for `length - 1`, then it scrolls away; the last one is pinned to the end of the page), `hold` (pose under reduced motion), `tagsWindow`, `packWidth`.
-- `components/Chapter.tsx` (server): section + `[data-stage]` + label + heading; `side` puts the text on the side the sheet leaves free. Chapters in `components/chapters/*.tsx`. `Header.tsx`, `Footer.tsx` (lies over the foot of the last stage while pinned).
-- `components/ScrollRig.tsx`: ScrollSmoother, one pin per stage (`refreshPriority: 1`, see notes), one span trigger per chapter, `store.story`, backdrop cross-fade, reduced-motion held poses, scroll restore after a reload (story position in `sessionStorage`).
-- `components/Reveals.tsx`: hinge reveals. `[data-reveal]` splits into lines (SplitText, `autoSplit`), `[data-reveal="block"]` hinges as one piece; `data-at` is the local chapter progress where it opens; it closes when the chapter has scrolled a quarter screen away; focus inside forces it open.
-- `components/PackControl.tsx` (range input writes `store.controls.pack`; headline `--wdth` and the readout follow `store.sheet`), `components/Tags.tsx` (fixed decorative chips on `store.anchors`, outside the smoother; the same facts are in the chapter markup, `scene-live:sr-only`), `components/JumpLink.tsx` (header links), `components/ThrowLink.tsx` (mailto CTA, sets `store.controls.thrownAt`).
-- `scene/direction.ts`: the sheet changes sides during the last quarter of a chapter; portrait framing lowered in chapters 3-5; chapter 2 camera closes in later; `thrown()` (dart out, a beat of empty page, back in).
-- Scripts: `scripts/serve.sh`, `scripts/shots.mjs` (now waits until smooth scrolling has stopped), `scripts/sheet.mjs <name> <shot>...` (contact sheet of shots), `scripts/checks.mjs` (behavior checks, exit code 1 on failure).
+- Stack, tokens, fonts, store, quality tiers, gsap setup: see `CLAUDE.md` and the files themselves (`app/globals.css`, `lib/*`). Variants: `pinned`, `loaded`, `scene-live`, `scene-off` (`data-scene` is `none` or `lost`), `fine`, `wide`.
+- Fold models in `lib/fold/`, scene in `scene/` (`Sheet`, `PaperMaterial`, `Page`, `ContactMaterial`, `stock`, `Director`, `Stage`), timing in `scene/direction.ts`.
+- `lib/content.ts` (all copy; placeholders: `credit.name`, `credit.href`, `site.url`), `lib/beats.ts` (chapter lengths, holds, `pageTurnSpan`, `tagsWindow`, `packWidth`).
+- DOM: `Chapter.tsx` + `components/chapters/*`, `Header`, `Footer`, `ScrollRig` (smoother, pins, `store.story`, scroll restore, page turn), `Reveals` (hinges), `PackControl`, `Tags`, `JumpLink`, `ThrowLink`.
+- Phase 4:
+  - Preloader: `lib/loadClock.ts` (phases fonts, code, context, shaders, frame; `skipScene()` without WebGL), `components/Preloader.tsx` (server-rendered overlay in the sheet color, steps light up, folds shut, sets `data-loaded` and `store.load`; 12 s limit). `Reveals` waits for `store.load.at`. Intro: `introAt()` and the `intro`/`aspect` arguments of `direct()`; the sheet covers the view in its pure color (`shot.pure`) and recedes over 1.8 s. Skipped under reduced motion and when the page loads scrolled past story 0.5.
+  - `components/Cursor.tsx`: dog-ear on its own fixed layer, fine pointers only, unfolds over `a, button, input, label, summary`.
+  - Page turn: `components/PageTurn.tsx` (two fixed layers) + `turnShapes()` in `ScrollRig` write `--turn`, `--turn-ink`, `--turn-page`, `--turn-flap`; `--backdrop` stays the current page, `--backdrop-ink` flips at half way.
+  - Sound: `lib/audio.ts` (room tone per chapter, rustle from `store.velocity` and fold rate, crease bursts on fold steps and on the pack control), `components/SoundToggle.tsx` in the header creates the context on the first click; suspended when off or hidden. The scene writes `store.sheet.crease` and `store.sheet.flight`.
+  - Fallback: `lib/drawing.ts` projects the fold models (pose = the chapter's `hold`) into flat facets; `components/SheetDrawing.tsx` renders them in every chapter, shown only under `noscript:` or `scene-off:`. `Stage` detects WebGL 2 and listens for context loss.
+  - `app/opengraph-image.tsx` and `app/icon.tsx` use the same drawing code; `metadataBase` comes from `site.url`.
+  - The shadow fades while the dart flies out (`ShadeMaterial` in `scene/Page.tsx`).
+- Scripts: `serve.sh`, `shots.mjs`, `sheet.mjs`, `checks.mjs`, `intro.mjs` (preloader and handover frames), `fallback.mjs <nojs|nowebgl>`, `cursor.mjs`.
 
 ## Verified
 
-- `npm run lint`, `npm run typecheck`, `npm run build` pass; the route is static.
-- `node scripts/checks.mjs` passes: one h1, pins, page length 18 screens, chapter 1 keeps its page while pinned, the pack control changes the readout and squeezes the headline, tags stay inside the viewport, scroll position restored after reload, the contact link reaches the end and the contact copy opens, a focused control is unfolded, no page errors, reduced motion has no pins and no hinges, without JavaScript each chapter paints its own page color.
-- Screenshots: all five chapters at 1440 and at 375 with the real DOM, the chapter 1-2 transition at 1440, the packed block at 1440, the page end with footer at 1440 and 375, the dart before and after a throw at 1280.
-- Not verified: 768 / 1024 / 1920 widths, short wide viewports (copy may not fit one screen below about 700 px height), folds and reveals in motion (only stills), the look of reduced motion and of the no-JS page (only checked by assertions), the dart's return after a throw, the readout through a screen reader, real frame rate, real phones (address bar resize with pins), Safari, sound, no-WebGL path.
+- `npm run lint`, `npm run typecheck`, `npm run build` pass; `/`, `/icon`, `/opengraph-image` are static.
+- `node scripts/checks.mjs` passes (19 checks): the phase 3 list plus preloader covers and lets go with 5 phases done, sound toggle switches, dog-ear unfolds over a link, page turn writes fold shapes, no WebGL releases the preloader and shows the drawing.
+- Seen in screenshots at 1280/1440: preloader and the frames after it, two page-turn moments, the no-JavaScript page (all five drawings), the no-WebGL chapter 3, the OG image, the cursor folded and unfolded.
+- Not verified: the intro in motion (the cloud draws about one frame a second, so the receding was never seen), the sound itself (only the toggle state), a lost WebGL context, the 12 s stuck-load release, the cursor in motion, the icon by eye, everything at 375 / 768 / 1024 / 1920 for the phase 4 features, plus the phase 3 list: short wide viewports, folds and reveals in motion, real frame rate, real phones, Safari, screen reader.
 
-## Roadmap
+## Known weak spots
 
-`PROMPT.md` does not need to be read again: what phases 4 and 5 need from it (§9.6, §9.7, §12, §13) is written out below.
+- The OG image sets its text in the default font of `next/og` (Anybody is only reachable through next/font).
+- Without WebGL at 720 px height chapter 3's copy (it then shows the tag facts too) is taller than the pinned screen and is cut at the bottom.
+- The page-turn mirror is computed in shares of the viewport, so the flap is not a true reflection on non-square screens.
+- The vault shows only its outside; `memory` is a constant 1; flecks were dropped.
 
-| Session | Phase | Content | Done when |
-| --- | --- | --- | --- |
-| 4 | 4 | Preloader, dog-ear cursor, page-turn fold, sound, SVG fallback, OG image, icon | All signature moments work; the site survives no WebGL and no JavaScript |
-| 5 | 5 | Phone, reduced motion, full verification, pull request, Serbian report | Everything under "Phase 5" below is complete |
-
-## Next: phase 4
-
-1. Preloader: a server-rendered overlay in the sheet-face color with the real load phases as steps. `lib/loadClock.ts` tracks scene code, WebGL context, shaders, first frame and fonts; the scene's first frame is part of the same progress; a time limit releases a stuck load. It sets `data-loaded` on `<html>`; `Reveals` must wait for it before opening chapter 1 (today the hero copy is visible, snaps shut at hydration and hinges open: the preloader hides that). The intro (sheet full-screen, then receding) is time-based; handover through `PaperMaterial.setPure`.
-2. Dog-ear cursor (fine pointers only, own fixed layer outside the smoother).
-3. Page turn: the backdrop change as a diagonal fold (`clip-path`) instead of today's cross-fade in `ScrollRig`.
-4. Sound (`lib/audio.ts`): an ambient layer that follows the chapter, the scroll speed (`store.velocity`) and the fold state, plus short UI sounds (crease burst on the pack control and on fold steps). The audio context is created only on the first click on a sound toggle in the header, and is suspended when sound is off or the tab is hidden.
-5. SVG fallback drawing of the sheet when there is no WebGL, no JavaScript, or the context is lost; check the no-JS page by eye. The cursor may have its own effect only on its small fixed layer.
-6. `app/opengraph-image.tsx`, `app/icon.tsx`.
-7. Small leftovers: during a throw the shadow map shows a large soft blot while the dart leaves (clamp or fade the shadow with `flight`); flecks were dropped (never tried, not needed); the vault shows only its outside; `memory` is a constant 1.
-
-## Phase 5 (the quality bar and the finish)
+## Next: phase 5
 
 - Text over the scene legible at every scroll position; the phone gets the same site on a lower tier with its own portrait framing.
 - `scripts/flow.mjs` (grow it from `scripts/checks.mjs`) walks through: preloader, keyboard, controls, sound toggle, refresh mid-page, no WebGL, lost context, stuck load, reduced motion, no JavaScript. Screenshots at 375, 768, 1024, 1440 and 1920.
 - One pull request against the default branch, text in English.
-- A report in Serbian with four parts: done, verified, not verified, weaker than wanted. Plus what the user does by hand: fill the credit placeholders in `lib/content.ts`, import the repository into Vercel.
+- A report in Serbian with four parts: done, verified, not verified, weaker than wanted. Plus what the user does by hand: fill the placeholders in `lib/content.ts` (`credit`, `site.url`), import the repository into Vercel.
 
 ## Design notes that exist nowhere else
 
@@ -71,4 +62,4 @@ The plan was approved by the user. Work to the end without asking; the only exce
 
 ## Open questions
 
-- None for the user. (The two credit placeholders in `lib/content.ts` are theirs to fill in.)
+- None for the user. (The placeholders in `lib/content.ts` are theirs to fill in.)
