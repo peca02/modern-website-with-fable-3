@@ -43,15 +43,15 @@ export const standUp = {
   projects: [
     {
       name: "Field Shelter No. 4",
-      text: "Sleeps six. Ships as a board 40 mm thick. Two people, four minutes, no poles.",
+      text: "Sleeps six. Ships as a 40 mm board. No poles.",
     },
     {
       name: "Array 12",
-      text: "Twelve square metres of solar film. Leaves the truck as one sheet, opens with one pull.",
+      text: "Twelve square metres of solar film. Opens with one pull.",
     },
     {
       name: "Flat Crate",
-      text: "A shipping crate with no tape and no foam. Comes back folded. Survives the third trip.",
+      text: "A crate with no tape and no foam. Comes back folded.",
     },
   ],
   tagsTitle: "The vault, measured",

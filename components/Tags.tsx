@@ -5,6 +5,8 @@ import { tagsWindow } from "@/lib/beats";
 import { durations, eases, gsap, media, useGSAP } from "@/lib/gsap";
 import { store } from "@/lib/store";
 
+const edge = 24;
+
 type TagsProps = { tags: readonly { anchor: string; label: string }[] };
 
 /**
@@ -33,7 +35,7 @@ export function Tags({ tags }: TagsProps) {
               paused: true,
             },
           );
-          return { holder, hinge, anchor: holder.dataset.tag ?? "", shown: false };
+          return { holder, chip, hinge, anchor: holder.dataset.tag ?? "", shown: false, width: 0 };
         });
 
         const tick = () => {
@@ -43,11 +45,15 @@ export function Tags({ tags }: TagsProps) {
             const show = inWindow && Boolean(anchor?.visible);
             if (show !== item.shown) {
               item.shown = show;
-              if (show) item.hinge.play();
-              else item.hinge.reverse();
+              if (show) {
+                item.width = item.chip instanceof HTMLElement ? item.chip.offsetWidth : 0;
+                item.hinge.play();
+              } else item.hinge.reverse();
             }
             if (anchor && (show || item.hinge.isActive())) {
-              item.holder.style.transform = `translate3d(${anchor.x.toFixed(1)}px, ${anchor.y.toFixed(1)}px, 0)`;
+              // A chip near the right edge slides back along its point instead of leaving the screen.
+              const x = Math.min(anchor.x, store.viewport.width - item.width - edge);
+              item.holder.style.transform = `translate3d(${x.toFixed(1)}px, ${anchor.y.toFixed(1)}px, 0)`;
             }
           }
         };

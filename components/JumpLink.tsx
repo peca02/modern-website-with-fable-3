@@ -10,8 +10,9 @@ export function JumpLink({ href, to, label, children }: JumpLinkProps) {
   const jump = (event: MouseEvent<HTMLAnchorElement>) => {
     if (!("pinned" in document.documentElement.dataset)) return;
     event.preventDefault();
-    window.scrollTo(0, to === "start" ? 0 : ScrollTrigger.maxScroll(window));
+    // Focus first: ScrollSmoother answers a focus change by scrolling to the element's own position.
     document.getElementById(href.slice(1))?.focus({ preventScroll: true });
+    window.scrollTo(0, to === "start" ? 0 : ScrollTrigger.maxScroll(window));
   };
 
   return (

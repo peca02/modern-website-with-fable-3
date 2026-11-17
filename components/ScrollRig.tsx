@@ -49,6 +49,8 @@ export function ScrollRig({ children }: { children: ReactNode }) {
           ScrollTrigger.create({
             trigger: stage,
             pin: true,
+            // Pins are measured before the chapters that contain them, so a chapter's length includes its pin.
+            refreshPriority: 1,
             start: "top top",
             end: () => `+=${(length - 1) * window.innerHeight}`,
           });
@@ -74,8 +76,8 @@ export function ScrollRig({ children }: { children: ReactNode }) {
       ScrollTrigger.clearScrollMemory("manual");
       const [entry] = performance.getEntriesByType("navigation");
       const saved = Number(sessionStorage.getItem(storyKey));
+      ScrollTrigger.refresh();
       if (entry instanceof PerformanceNavigationTiming && entry.type === "reload" && saved > 0) {
-        ScrollTrigger.refresh();
         const span = spans[Math.min(spans.length - 1, Math.floor(saved))];
         if (span) {
           const top = span.start + (span.end - span.start) * (saved - Math.floor(saved));
