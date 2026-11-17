@@ -4,20 +4,29 @@ import { useFrame } from "@react-three/fiber";
 import { useRef, useState } from "react";
 import { Color, Vector3, type Group, type Mesh } from "three";
 import { createMiura } from "@/lib/fold/miura";
+import type { FoldModel } from "@/lib/fold/types";
+import { createVault } from "@/lib/fold/yoshimura";
 import { sheetFace } from "@/lib/palette";
 import { store } from "@/lib/store";
 import { ContactMaterial } from "@/scene/ContactMaterial";
-import { direct } from "@/scene/direction";
+import { direct, type Pattern } from "@/scene/direction";
 import { keyLight } from "@/scene/Page";
 import { PaperMaterial } from "@/scene/PaperMaterial";
 import { SheetGeometry } from "@/scene/SheetGeometry";
 import { backdropAt, reverseAt } from "@/scene/stock";
 
+type Folded = { model: FoldModel; geometry: SheetGeometry };
+
+function createPatterns(): Record<Pattern, Folded> {
+  const fold = (model: FoldModel) => ({ model, geometry: new SheetGeometry(model.mesh) });
+  return { miura: fold(createMiura()), vault: fold(createVault()) };
+}
+
 export function Sheet({ shadowMap }: { shadowMap: number }) {
   const group = useRef<Group>(null);
+  const paper = useRef<Mesh>(null);
   const contact = useRef<Mesh>(null);
-  const [model] = useState(() => createMiura());
-  const [geometry] = useState(() => new SheetGeometry(model.mesh));
+  const [patterns] = useState(createPatterns);
   const [material] = useState(() => new PaperMaterial());
   const [patch] = useState(() => new ContactMaterial());
   const [page] = useState(() => new Color());
@@ -27,8 +36,10 @@ export function Sheet({ shadowMap }: { shadowMap: number }) {
     const { story, pointer, viewport, controls } = store;
     const shot = direct(story, clock.elapsedTime, pointer.x, pointer.y, viewport.wide, controls.pack);
 
+    const { model, geometry } = patterns[shot.pattern];
     model.pose([shot.fold]);
     geometry.sync();
+    if (paper.current && paper.current.geometry !== geometry) paper.current.geometry = geometry;
 
     material.setColors(sheetFace, reverseAt(story), backdropAt(story, "page", page));
     material.setFold(shot.fold, shot.memory);
@@ -40,7 +51,14 @@ export function Sheet({ shadowMap }: { shadowMap: number }) {
     sheet.rotation.set(shot.tiltX, shot.tiltY + shot.turn * Math.PI, shot.spin);
     sheet.updateMatrixWorld();
 
-    // DOM followers read the same vertices the picture is drawn from.
+    // DOM followers read the same vertices the picture is drawn from. Anchors of the other patterns hide.
+    for (const [name, folded] of Object.entries(patterns)) {
+      if (name === shot.pattern) continue;
+      for (const key of Object.keys(folded.model.mesh.anchors)) {
+        const anchor = store.anchors[key];
+        if (anchor) anchor.visible = false;
+      }
+    }
     for (const [name, corner] of Object.entries(model.mesh.anchors)) {
       point.fromArray(model.mesh.positions, corner * 3).applyMatrix4(sheet.matrixWorld).project(camera);
       const anchor = (store.anchors[name] ??= { x: 0, y: 0, visible: false });
@@ -67,7 +85,14 @@ export function Sheet({ shadowMap }: { shadowMap: number }) {
   return (
     <>
       <group ref={group}>
-        <mesh geometry={geometry} material={material} castShadow receiveShadow frustumCulled={false} />
+        <mesh
+          ref={paper}
+          geometry={patterns.miura.geometry}
+          material={material}
+          castShadow
+          receiveShadow
+          frustumCulled={false}
+        />
       </group>
       {shadowMap > 0 ? null : (
         <mesh ref={contact} material={patch}>

@@ -2,6 +2,8 @@
 
 export type Key = readonly [at: number, value: number];
 
+export type Pattern = "miura" | "vault";
+
 export type Shot = {
   /** Lens shift as a share of the viewport: positive x moves the subject right, positive y up. */
   shiftX: number;
@@ -15,7 +17,9 @@ export type Shot = {
   turn: number;
   /** Height of the sheet above the page. */
   lift: number;
-  /** Miura fold driver, 0 flat to 1 packed. */
+  /** Which crease pattern the sheet carries. It only changes while the sheet is flat and edge-on. */
+  pattern: Pattern;
+  /** Driver of the current pattern, 0 flat to 1 fully folded. */
   fold: number;
   /** How visible the creases folded so far are. */
   memory: number;
@@ -87,6 +91,9 @@ const distance: Track = {
     [1.58, 4.4],
     [1.75, 4.4],
     [2, 9.6],
+    [2.3, 8.6],
+    [2.9, 8.6],
+    [3.1, 9.6],
     [5, 9.6],
   ],
   portrait: [
@@ -96,6 +103,9 @@ const distance: Track = {
     [1.58, 8.5],
     [1.75, 8.5],
     [2, 19],
+    [2.3, 16.5],
+    [2.9, 16.5],
+    [3.1, 19],
     [5, 19],
   ],
 };
@@ -104,8 +114,11 @@ const tiltX: readonly Key[] = [
   [1, -0.55],
   [1.58, -0.7],
   [1.75, -0.7],
-  [2, -0.6],
-  [3, -1.0],
+  [1.96, -0.5],
+  [2.25, -0.75],
+  [2.7, -0.98],
+  [2.9, -0.98],
+  [3.1, -0.6],
   [4, -0.8],
   [5, -0.6],
 ];
@@ -114,7 +127,11 @@ const tiltY: readonly Key[] = [
   [1, 0.26],
   [1.58, 0.85],
   [1.75, 0.85],
-  [2, -0.24],
+  [1.96, -0.2],
+  [2.25, 0.15],
+  [2.7, 0.3],
+  [2.9, 0.3],
+  [3.1, -0.24],
   [5, -0.24],
 ];
 const spin: readonly Key[] = [
@@ -122,7 +139,11 @@ const spin: readonly Key[] = [
   [1, -0.16],
   [1.58, -0.35],
   [1.75, -0.35],
-  [2, 0.18],
+  [1.96, 0.1],
+  [2.25, 0.05],
+  [2.7, 0.08],
+  [2.9, 0.08],
+  [3.1, 0.18],
   [5, 0.18],
 ];
 const lift: readonly Key[] = [
@@ -131,12 +152,15 @@ const lift: readonly Key[] = [
   [1.58, 0.7],
   [1.75, 0.7],
   [2, 0.95],
+  [2.25, 1.5],
+  [2.9, 1.5],
+  [3.1, 0.95],
   [5, 0.95],
 ];
 const turn: readonly Key[] = [
   [0, 0],
-  [1.98, 0],
-  [2.2, 1],
+  [2, 0],
+  [2.24, 1],
   [3.9, 1],
   [4.15, 0],
   [5, 0],
@@ -151,16 +175,24 @@ const fold: readonly Key[] = [
   [1.4, 0.62],
   [1.58, 1],
   [1.75, 1],
-  [1.96, 0.26],
-  [2, 0.26],
-  [2.08, 0],
+  [1.9, 0.26],
+  [1.98, 0],
+];
+// Chapter 3: the turned sheet stands up into a vault in two folds, holds, and lies down again.
+const arch: readonly Key[] = [
+  [2.26, 0],
+  [2.4, 0.5],
+  [2.5, 0.5],
+  [2.66, 1],
+  [2.9, 1],
+  [3.04, 0],
 ];
 // The pack control only acts inside chapter 2.
 const packWindow: readonly Key[] = [
   [0.9, 0],
   [1.1, 1],
-  [1.9, 1],
-  [2.08, 0],
+  [1.88, 1],
+  [1.98, 0],
 ];
 
 const pick = (track: Track, wide: boolean) => (wide ? track.wide : track.portrait);
@@ -175,6 +207,8 @@ export function direct(
 ): Shot {
   const scrolled = sample(fold, story, hinge);
   const packed = pack * sample(packWindow, story);
+  const turned = sample(turn, story, hinge);
+  const pattern: Pattern = turned >= 0.5 ? "vault" : "miura";
   return {
     shiftX: sample(pick(shiftX, wide), story),
     shiftY: sample(pick(shiftY, wide), story),
@@ -182,9 +216,10 @@ export function direct(
     tiltX: sample(tiltX, story) + pointerY * 0.08 + Math.sin(time * 0.4) * 0.015,
     tiltY: sample(tiltY, story) + pointerX * 0.12,
     spin: sample(spin, story),
-    turn: sample(turn, story, hinge),
+    turn: turned,
+    pattern,
     lift: sample(lift, story),
-    fold: scrolled + (1 - scrolled) * packed,
+    fold: pattern === "vault" ? sample(arch, story, hinge) : scrolled + (1 - scrolled) * packed,
     memory: 1,
   };
 }
