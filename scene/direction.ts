@@ -281,6 +281,26 @@ const viewSlope = Math.tan((15 * Math.PI) / 180);
 
 const pick = (track: Track, wide: boolean) => (wide ? track.wide : track.portrait);
 
+// The portrait tracks are framed on a 375 x 812 phone, where each chapter's copy reaches this far down its
+// screen. On a shorter screen the copy reaches lower: the strip below it is mapped onto the strip it had there,
+// so the sheet moves down and shrinks instead of covering the copy (never below half its size).
+const copyFramed = [0.606, 0.589, 0.668, 0.759, 0.681];
+const smallest = 0.5;
+
+const copyKeys = (shares: readonly number[]) =>
+  shares.flatMap((share, index): Key[] => [
+    [index, share],
+    [index + 0.75, share],
+  ]);
+const framedKeys = copyKeys(copyFramed);
+
+function copyRoom(story: number, copy: readonly number[]) {
+  if (copy.length === 0) return { from: 0, to: 0, scale: 1 };
+  const from = sample(framedKeys, story);
+  const to = Math.max(from, sample(copyKeys(copy), story));
+  return { from, to, scale: Math.max(smallest, (1 - to) / (1 - from)) };
+}
+
 export function direct(
   story: number,
   time: number,
@@ -291,6 +311,7 @@ export function direct(
   sinceThrow = -1,
   intro = 0,
   aspect = 1,
+  copy: readonly number[] = [],
 ): Shot {
   // The intro pose: flat, square to the camera and close enough to cover the whole view.
   const enter = (value: number, target = 0) => value + (target - value) * intro;
@@ -308,10 +329,13 @@ export function direct(
     halves: sample(halves, story, hinge),
     dart: sample(dart, story, hinge),
   };
+  const room = wide ? { from: 0, to: 0, scale: 1 } : copyRoom(story, copy);
+  // Screen y of the sheet's center from the top, moved from the framed strip into the free one.
+  const center = room.to + (0.5 - sample(pick(shiftY, wide), story) - room.from) * room.scale;
   return {
     shiftX: enter(sample(pick(shiftX, wide), story)),
-    shiftY: enter(sample(pick(shiftY, wide), story)),
-    distance: enter(sample(pick(distance, wide), story), cover),
+    shiftY: enter(0.5 - center),
+    distance: enter(sample(pick(distance, wide), story) / room.scale, cover),
     tiltX: enter(sample(tiltX, story) + pointerY * 0.08 + Math.sin(time * 0.4) * 0.015),
     tiltY: enter(sample(tiltY, story) + pointerX * 0.12),
     spin: enter(sample(spin, story)),

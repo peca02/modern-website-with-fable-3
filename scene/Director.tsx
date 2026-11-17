@@ -22,6 +22,7 @@ export function Director() {
       -1,
       introAt(store.load, store.reduced),
       size.width / size.height,
+      store.viewport.copy,
     );
     if (camera instanceof PerspectiveCamera) {
       camera.position.set(0, 0, shot.distance);

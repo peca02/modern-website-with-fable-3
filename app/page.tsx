@@ -12,6 +12,7 @@ import { Reveals } from "@/components/Reveals";
 import { SceneLoader } from "@/components/SceneLoader";
 import { ScrollRig } from "@/components/ScrollRig";
 import { Tags } from "@/components/Tags";
+import { chapters } from "@/lib/beats";
 import { preloader, standUp } from "@/lib/content";
 
 export default function Page() {
@@ -30,7 +31,7 @@ export default function Page() {
         </main>
         <Footer />
       </ScrollRig>
-      <Tags tags={standUp.tags} />
+      <Tags chapter={chapters[2].id} tags={standUp.tags} />
       <Reveals />
       <Cursor />
       <Preloader title={preloader.title} steps={preloader.steps} />

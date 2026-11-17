@@ -6,7 +6,8 @@ export type Store = {
   /** Scroll velocity in viewport heights per second, smoothed. */
   velocity: number;
   pointer: { x: number; y: number };
-  viewport: { width: number; height: number; wide: boolean };
+  /** `copy`: per chapter, how far down its screen the copy reaches (0-1). Portrait framing keeps the sheet below. */
+  viewport: { width: number; height: number; wide: boolean; copy: number[] };
   /** `pack` is the range control, 0-1. `thrownAt` is the `performance.now()` of the last throw, 0 for never. */
   controls: { pack: number; thrownAt: number };
   /** Live Miura fold amount and bounding size, written by the scene. `live` stays false without a scene. */

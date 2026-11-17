@@ -46,7 +46,7 @@ export function Chapter({ id, stock, side, step, name, headline, hero = false, c
         data-stage
         className="page-grid min-h-svh content-start pt-24 pb-16 pinned:h-svh pinned:overflow-hidden pinned:pb-24 wide:content-center-safe wide:pt-28"
       >
-        <div className={`halo col-span-full flex flex-col gap-4 md:col-span-9 wide:gap-6 ${sideClass[side]}`}>
+        <div data-copy className={`halo col-span-full flex flex-col gap-4 md:col-span-9 wide:gap-6 ${sideClass[side]}`}>
           <p className="type-label" data-reveal data-at={at}>
             {step}. {name}
           </p>

@@ -5,7 +5,7 @@ export const store: Store = {
   story: 0,
   velocity: 0,
   pointer: { x: 0, y: 0 },
-  viewport: { width: 1, height: 1, wide: true },
+  viewport: { width: 1, height: 1, wide: true, copy: [] },
   controls: { pack: 0, thrownAt: 0 },
   sheet: { live: false, fold: 0, x: 0, y: 0, z: 0, crease: 0, flight: 0 },
   load: { at: 0, intro: true },

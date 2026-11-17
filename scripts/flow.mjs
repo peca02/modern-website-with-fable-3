@@ -1,7 +1,7 @@
 // The whole visit, end to end. Needs the production server (scripts/serve.sh).
 //   node scripts/flow.mjs checks          behavior: preloader, keyboard, controls, sound, refresh, fallbacks
 //   node scripts/flow.mjs layout          copy fits its pinned screen at every width, with and without the scene
-//   node scripts/flow.mjs shots <width> [stories...]   screenshots of the live scene at one width
+//   node scripts/flow.mjs shots <width>x<height> [stories...]   screenshots of the live scene at one width
 import { mkdir } from "node:fs/promises";
 import { chromium } from "playwright";
 
@@ -10,7 +10,15 @@ const mode = process.argv[2] ?? "checks";
 const results = [];
 const check = (name, pass, detail = "") => results.push(`${pass ? "ok  " : "FAIL"} ${name} ${detail}`);
 
-const widths = { 375: 812, 768: 1024, 1024: 768, 1280: 720, 1440: 900, 1920: 1080 };
+const sizes = [
+  [375, 812],
+  [375, 667],
+  [768, 1024],
+  [1024, 768],
+  [1280, 720],
+  [1440, 900],
+  [1920, 1080],
+];
 
 const html = (page, predicate, timeout = 60000) =>
   page.waitForFunction(predicate, undefined, { timeout }).then(
@@ -273,8 +281,8 @@ async function checks(browser) {
 
 // Fast: without WebGL the page settles in seconds. The live layout is the same page with the tag facts hidden.
 async function layout(browser) {
-  for (const [width, height] of Object.entries(widths)) {
-    const page = await browser.newPage({ viewport: { width: Number(width), height } });
+  for (const [width, height] of sizes) {
+    const page = await browser.newPage({ viewport: { width, height } });
     await noWebGL(page);
     await page.goto(base);
     await html(page, () => "loaded" in document.documentElement.dataset && "pinned" in document.documentElement.dataset);
@@ -290,9 +298,9 @@ async function layout(browser) {
 }
 
 async function shots(browser) {
-  const width = Number(process.argv[3] ?? 1440);
+  const [width, height] = (process.argv[3] ?? "1440x900").split("x").map(Number);
   const stories = process.argv.slice(4).map(Number);
-  const page = await browser.newPage({ viewport: { width, height: widths[width] ?? 900 } });
+  const page = await browser.newPage({ viewport: { width, height } });
   const errors = [];
   page.on("pageerror", (error) => errors.push(error.message));
   await page.goto(base);
@@ -301,7 +309,7 @@ async function shots(browser) {
   await mkdir("shots", { recursive: true });
   for (const story of stories.length > 0 ? stories : [0.4, 2.7]) {
     await scrollToStory(page, story);
-    const file = `shots/flow-${width}-${Math.round(story * 100)}.png`;
+    const file = `shots/flow-${width}x${height}-${Math.round(story * 100)}.png`;
     await page.screenshot({ path: file });
     results.push(file);
   }

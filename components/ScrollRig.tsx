@@ -167,16 +167,29 @@ export function ScrollRig({ children }: { children: ReactNode }) {
       store.viewport.width = width;
       store.viewport.height = height;
       store.viewport.wide = width / height >= 1.25 && width >= 768;
+      // The copy's own box ignores the hinges' transforms on its lines.
+      store.viewport.copy = [...document.querySelectorAll("[data-stage]")].map((stage) => {
+        const copy = stage.querySelector("[data-copy]");
+        if (!copy || stage.clientHeight === 0) return 0;
+        return (copy.getBoundingClientRect().bottom - stage.getBoundingClientRect().top) / stage.clientHeight;
+      });
     };
     const point = (event: PointerEvent) => {
       store.pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
       store.pointer.y = 1 - (event.clientY / window.innerHeight) * 2;
     };
     measure();
+    void document.fonts.ready.then(measure);
+    // A live scene hides the fallback facts in chapter 3, which shortens its copy.
+    const scene = new MutationObserver(measure);
+    scene.observe(document.documentElement, { attributeFilter: ["data-scene"] });
+    ScrollTrigger.addEventListener("refresh", measure);
     window.addEventListener("resize", measure);
     window.addEventListener("pointermove", point, { passive: true });
 
     return () => {
+      scene.disconnect();
+      ScrollTrigger.removeEventListener("refresh", measure);
       window.removeEventListener("resize", measure);
       window.removeEventListener("pointermove", point);
     };
