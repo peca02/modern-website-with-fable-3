@@ -40,10 +40,11 @@ Pro plan, most expensive model, small 5-hour limit: saving tokens matters more t
 4. The limit ran out? After the reset, resume exactly one thing.
 
 - Agents run strictly one at a time, never in parallel and never in a batch. Lessons from one agent go into the next agent's brief.
+- An agent's brief names the files it owns, the few files it may read, the rules from this file that matter for it, and what "done" means. An agent never starts other agents.
 - An interrupted agent with little work left is finished by the main thread. Restart it only if a lot remains.
 - Reviews: first pass in the main thread. A reviewer agent only when fresh eyes are needed, one at a time.
-- Commit and push after every step that works. The session can stop at any moment.
-- Keep context small: read a file once and only the part needed, keep command output quiet, take screenshots for one chapter and one width per run.
+- Commit and push after every step that works. The session can stop at any moment. Lint and typecheck pass before every commit.
+- Keep context small: read a file once and only the part needed, never re-read a file you just wrote, keep command output quiet, take screenshots for one chapter and one width per run. Load a skill once per session, when starting the kind of work it covers.
 - One phase per session by default. At the end of a phase write `docs/SESSION_SUMMARY.md` (done, verified, remaining, open questions, file paths, branch), commit, push, and tell the user it is a good moment for a new session.
 - A new session starts from a fresh clone that may be behind the work branch. Before reading anything, fetch the branch the user names and fast-forward to it (`git fetch origin <branch>`, `git merge --ff-only origin/<branch>`); files read before that may be stale.
 - Then read this file, `docs/SESSION_SUMMARY.md` and `docs/ART_DIRECTION.md`, not the whole codebase. Keep those three files short.
@@ -67,7 +68,7 @@ Pro plan, most expensive model, small 5-hour limit: saving tokens matters more t
 /app          → the single route, `globals.css` (tokens), generated OG image and icon
 /components   → DOM layer: server chapters, small client components
 /scene        → everything that imports three
-/lib          → store, beats, content, palette, gsap, quality, loadClock, audio, `fold/` (fold models, no three imports)
+/lib          → store, beats, content, palette, gsap, quality, loadClock, audio, drawing (fold models as SVG facets), `fold/` (fold models, no three imports)
 /hooks        → custom React hooks
 /types        → shared TypeScript types
 /scripts      → Playwright development scripts, `serve.sh` (build and serve for them)

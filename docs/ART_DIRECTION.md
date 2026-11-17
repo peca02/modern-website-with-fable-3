@@ -113,3 +113,5 @@ Paper is filtered noise: a short band-passed burst for a crease, a soft rustle t
 ## Rendering
 
 WebGL + GLSL, no post-processing. Transparent canvas over the CSS page color. The page is a desk seen from straight above: the sheet floats over it and drops its shadow on it. MSAA for crisp facet edges. One shadow map on the two upper quality tiers; fold-angle shading and an alpha contact shadow on the lower ones.
+
+Without WebGL, without JavaScript, or while the context is lost, each chapter shows its held pose as flat SVG facets, projected from the same fold models and lit by the same key light, with a solid ink shadow. The OG image and the icon are drawn the same way.

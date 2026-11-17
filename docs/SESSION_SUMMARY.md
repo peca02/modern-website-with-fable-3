@@ -2,6 +2,7 @@
 
 Branch: `claude/festive-hypatia-jick9a`. Rewritten every session; history lives in git.
 The plan was approved by the user. Work to the end without asking; the only exception is a manual step you cannot do yourself.
+`PROMPT.md` does not need to be read: what phase 5 needs from it (§1 priorities, §2-§4 session rules, §12, §13) is in this file and in `CLAUDE.md`. Open a section only if a rule here is unclear.
 
 ## Done (phases 0-4)
 
@@ -33,12 +34,21 @@ The plan was approved by the user. Work to the end without asking; the only exce
 - The page-turn mirror is computed in shares of the viewport, so the flap is not a true reflection on non-square screens.
 - The vault shows only its outside; `memory` is a constant 1; flecks were dropped.
 
-## Next: phase 5
+## Next: phase 5 (the last one)
 
-- Text over the scene legible at every scroll position; the phone gets the same site on a lower tier with its own portrait framing.
+- Priorities, in order: visual quality, originality, performance, how well it works on a phone.
+- Text over the scene legible at every scroll position (HARD); start by fixing the no-WebGL overflow in chapter 3 above. The phone gets the same site on a lower tier with its own portrait framing.
 - `scripts/flow.mjs` (grow it from `scripts/checks.mjs`) walks through: preloader, keyboard, controls, sound toggle, refresh mid-page, no WebGL, lost context, stuck load, reduced motion, no JavaScript. Screenshots at 375, 768, 1024, 1440 and 1920.
 - One pull request against the default branch, text in English.
 - A report in Serbian with four parts: done, verified, not verified, weaker than wanted. Plus what the user does by hand: fill the placeholders in `lib/content.ts` (`credit`, `site.url`), import the repository into Vercel.
+- If the session grows large, stop after `flow.mjs` and the fixes (summary, commit, push); the pull request and the report can be a short final session.
+
+## Decisions made without asking (phase 4)
+
+- Preloader copy "Step 0. Unwrap" with five steps in the folding-instructions voice; the overlay folds shut line by line.
+- The sound toggle is a text button "Sound" with a react-icons speaker; without JavaScript it is hidden.
+- `site.url` was added as a third placeholder, needed for `metadataBase` (absolute links to the share image).
+- The fallback drawing uses each chapter's reduced-motion pose (`hold`), so no-WebGL and reduced motion show the same moments.
 
 ## Design notes that exist nowhere else
 
