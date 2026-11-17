@@ -22,6 +22,8 @@ export function backdropAt(story: number, tone: "page" | "ink", out: Color) {
 
 /** The reverse of the sheet carries the next page's color; it changes while that side is hidden. */
 export function reverseAt(story: number) {
-  const next = chapters[(Math.floor(story) + 1) % chapterCount] ?? chapters[0];
+  // The story ends exactly on the chapter count; that last point still belongs to the last chapter.
+  const index = Math.min(chapterCount - 1, Math.floor(story));
+  const next = chapters[(index + 1) % chapterCount] ?? chapters[0];
   return stocks[next.stock].page;
 }

@@ -1,16 +1,20 @@
 "use client";
 
+import { chapters } from "@/lib/beats";
 import { durations, eases, gsap, media, SplitText, useGSAP } from "@/lib/gsap";
 import { store } from "@/lib/store";
 
-type Item = { at: number; open: boolean; forced: boolean; hinge: gsap.core.Tween | null };
+type Item = { at: number; until: number; open: boolean; forced: boolean; hinge: gsap.core.Tween | null };
 
 // Scrolling back closes a line a little before the point where it opened, so it never chatters at the threshold.
 const slack = 0.02;
 
+/** Share of a screen a chapter scrolls away before its copy closes. */
+const leaveAfter = 0.25;
+
 /**
  * Hinge reveals: every `[data-reveal]` opens line by line from its top edge once the story passes the
- * element's `data-at` (local progress of its chapter). `data-reveal="block"` hinges the element as one piece.
+ * element's `data-at` (local progress of its chapter) and closes again when the chapter leaves. `data-reveal="block"` hinges the element as one piece.
  */
 export function Reveals() {
   useGSAP(() => {
@@ -27,9 +31,13 @@ export function Reveals() {
         return item.hinge;
       };
 
-      gsap.utils.toArray<HTMLElement>("[data-chapter]").forEach((section, index) => {
+      const sections = gsap.utils.toArray<HTMLElement>("[data-chapter]");
+      sections.forEach((section, index) => {
+        // A chapter folds its copy shut once it has scrolled a part of a screen away, before it meets the header.
+        const length = chapters[index]?.length ?? 1;
+        const until = index === sections.length - 1 ? Infinity : index + 1 - (1 - leaveAfter) / length;
         section.querySelectorAll<HTMLElement>("[data-reveal]").forEach((element) => {
-          const item: Item = { at: index + Number(element.dataset.at ?? 0), open: false, forced: false, hinge: null };
+          const item: Item = { at: index + Number(element.dataset.at ?? 0), until, open: false, forced: false, hinge: null };
           items.push(item);
           // Keyboard focus may land in copy the scroll has not reached; it must not stay folded shut.
           element.addEventListener("focusin", () => {
@@ -54,7 +62,8 @@ export function Reveals() {
 
       const tick = () => {
         for (const item of items) {
-          const open = item.forced || store.story >= item.at - (item.open ? slack : 0);
+          const open =
+            item.forced || (store.story >= item.at - (item.open ? slack : 0) && store.story < item.until);
           if (open === item.open) continue;
           item.open = open;
           if (open) item.hinge?.play();

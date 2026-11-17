@@ -37,6 +37,10 @@ export function ScrollRig({ children }: { children: ReactNode }) {
           smooth: 1.1,
           smoothTouch: false,
           effects: false,
+          // Targets of in-page links (tabindex -1) are focused by JumpLink, which scrolls on its own;
+          // the smoother's scroll-to-focus would send the page to the element's place before its pin.
+          onFocusIn: (_self: ScrollSmoother, event: Event) =>
+            !(event.target instanceof HTMLElement && event.target.tabIndex === -1),
         });
       }
 

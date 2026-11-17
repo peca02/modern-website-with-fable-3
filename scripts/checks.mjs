@@ -91,6 +91,19 @@ const browser = await chromium.launch();
     { timeout: 60000 },
   );
   check("contact link scrolls to the end", await page.evaluate(() => document.activeElement?.id === "contact"));
+  // The story must arrive too, not only the scrollbar: the contact copy opens at the very end.
+  const opened = await page
+    .waitForFunction(
+      () => {
+        const line = document.querySelector("#contact h3 div");
+        const cells = line ? getComputedStyle(line).transform.match(/-?[\d.]+(e-?\d+)?/g) : null;
+        return cells !== null && Math.abs(Number(cells[6]) - 1) < 0.01;
+      },
+      undefined,
+      { timeout: 120000 },
+    )
+    .then(() => true, () => false);
+  check("contact copy opens after the jump", opened);
 
   await scrollToStory(page, 0);
   await page.locator("input[type=range]").focus();
