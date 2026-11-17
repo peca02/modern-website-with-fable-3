@@ -1,36 +1,33 @@
-import { Chapter } from "@/components/Chapter";
+import { LetGo } from "@/components/chapters/LetGo";
+import { PackSmall } from "@/components/chapters/PackSmall";
+import { StandUp } from "@/components/chapters/StandUp";
+import { StartFlat } from "@/components/chapters/StartFlat";
+import { StayCreased } from "@/components/chapters/StayCreased";
+import { Footer } from "@/components/Footer";
+import { Header } from "@/components/Header";
+import { Reveals } from "@/components/Reveals";
 import { SceneLoader } from "@/components/SceneLoader";
 import { ScrollRig } from "@/components/ScrollRig";
-import { chapters } from "@/lib/beats";
-import { chapterCopy, site } from "@/lib/content";
+import { Tags } from "@/components/Tags";
+import { standUp } from "@/lib/content";
 
 export default function Page() {
   return (
     <>
       <SceneLoader />
-      <header className="page-grid fixed inset-x-0 top-0 z-20 pt-6 text-backdrop-ink">
-        <p className="type-label col-span-full">{site.name}</p>
-      </header>
+      <Header />
       <ScrollRig>
-        <main>
-          {chapters.map((chapter, index) => {
-            const copy = chapterCopy[index];
-            if (!copy) return null;
-            const Heading = index === 0 ? "h1" : "h2";
-            return (
-              <Chapter key={chapter.id} id={chapter.id} stock={chapter.stock} label={copy.name}>
-                <p className="type-label col-span-full">
-                  {copy.step}. {copy.name}
-                </p>
-                <Heading className="type-display halo col-span-full mt-4 md:col-span-7">
-                  {copy.headline}
-                </Heading>
-                <div className="col-span-full h-svh" />
-              </Chapter>
-            );
-          })}
+        <main id="top" tabIndex={-1} className="outline-none">
+          <StartFlat />
+          <PackSmall />
+          <StandUp />
+          <StayCreased />
+          <LetGo />
         </main>
+        <Footer />
       </ScrollRig>
+      <Tags tags={standUp.tags} />
+      <Reveals />
     </>
   );
 }

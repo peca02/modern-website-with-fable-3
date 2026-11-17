@@ -19,8 +19,8 @@ const literata = Literata({
 });
 
 export const metadata: Metadata = {
-  title: site.name,
-  description: site.tagline,
+  title: `${site.name}. ${site.tagline}`,
+  description: site.description,
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

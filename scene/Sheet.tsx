@@ -40,11 +40,28 @@ export function Sheet({ shadowMap }: { shadowMap: number }) {
 
   useFrame(({ clock, camera, size }) => {
     const { story, pointer, viewport, controls } = store;
-    const shot = direct(story, clock.elapsedTime, pointer.x, pointer.y, viewport.wide, controls.pack);
+    const sinceThrow =
+      controls.thrownAt > 0 && !store.reduced ? (performance.now() - controls.thrownAt) / 1000 : -1;
+    const shot = direct(
+      story,
+      clock.elapsedTime,
+      pointer.x,
+      pointer.y,
+      viewport.wide,
+      controls.pack,
+      sinceThrow,
+    );
 
     const { model, geometry } = patterns[shot.pattern];
     model.pose([shot.fold]);
     geometry.sync();
+    if (shot.pattern === "miura") {
+      store.sheet.live = true;
+      store.sheet.fold = shot.fold;
+      store.sheet.x = model.extent.x;
+      store.sheet.y = model.extent.y;
+      store.sheet.z = model.extent.z;
+    }
     if (paper.current && paper.current.geometry !== geometry) paper.current.geometry = geometry;
 
     material.setColors(sheetFace, reverseAt(story), backdropAt(story, "page", page));

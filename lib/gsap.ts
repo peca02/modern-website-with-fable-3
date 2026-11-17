@@ -7,6 +7,9 @@ import { SplitText } from "gsap/SplitText";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger, ScrollSmoother, SplitText, CustomEase);
 
+// Mobile address bars resize the viewport while scrolling; pins must not jump when they do.
+ScrollTrigger.config({ ignoreMobileResize: true });
+
 // The motion language: a fold starts fast, stops hard, and may spring back a little.
 CustomEase.create("crease", "0.16, 1, 0.3, 1");
 CustomEase.create("spring", "0.2, 1.4, 0.4, 1");

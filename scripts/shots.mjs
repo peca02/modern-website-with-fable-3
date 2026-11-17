@@ -33,10 +33,17 @@ await page.evaluate(
 await page.evaluate(
   () =>
     new Promise((resolve) => {
+      // Smooth scrolling keeps moving the content after scrollTo; wait until it has stopped.
+      const probe = document.querySelector("[data-chapter]");
       let frames = 0;
+      let still = 0;
+      let last = NaN;
       const step = () => {
+        const top = probe ? probe.getBoundingClientRect().top : 0;
+        still = Math.abs(top - last) < 0.5 ? still + 1 : 0;
+        last = top;
         frames += 1;
-        if (frames > 6) resolve(null);
+        if (still > 8 || frames > 400) resolve(null);
         else requestAnimationFrame(step);
       };
       requestAnimationFrame(step);

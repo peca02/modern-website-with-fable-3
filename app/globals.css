@@ -4,6 +4,7 @@
 @custom-variant fine (@media (pointer: fine));
 @custom-variant scene-live (&:where([data-scene="live"] *));
 @custom-variant loaded (&:where([data-loaded] *));
+@custom-variant pinned (&:where([data-pinned] *));
 @custom-variant motion-full (&:where([data-motion="full"] *));
 
 @theme {
@@ -24,8 +25,8 @@
   --font-display: var(--font-anybody), "Arial Narrow", sans-serif;
   --font-text: var(--font-literata), Georgia, serif;
 
-  --text-hero: clamp(4.5rem, 17vw, 17rem);
-  --text-display: clamp(3rem, 10vw, 10rem);
+  --text-hero: clamp(4.5rem, min(17vw, 22svh), 17rem);
+  --text-display: clamp(3rem, min(10vw, 14svh), 10rem);
   --text-title: clamp(1.75rem, 3.2vw, 3.25rem);
   --text-body: clamp(1.0625rem, 0.35vw + 1rem, 1.3125rem);
   --text-label: clamp(0.8125rem, 0.15vw + 0.78rem, 0.9375rem);

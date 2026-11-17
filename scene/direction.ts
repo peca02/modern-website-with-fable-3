@@ -59,18 +59,19 @@ export function sample(keys: readonly Key[], at: number, ease: (t: number) => nu
 
 type Track = { wide: readonly Key[]; portrait: readonly Key[] };
 
+// The sheet changes sides while a chapter scrolls away (the last quarter), so it has arrived when the next pins.
 // Wide screens: text takes one side, the sheet the other. Portrait: the sheet sits below the text.
 const shiftX: Track = {
   wide: [
     [0, 0.21],
-    [0.8, 0.21],
-    [1.2, -0.2],
-    [1.8, -0.2],
-    [2.2, 0.2],
-    [2.8, 0.2],
-    [3.2, -0.2],
-    [3.8, -0.2],
-    [4.2, 0.18],
+    [0.55, 0.21],
+    [1, -0.2],
+    [1.72, -0.2],
+    [2, 0.2],
+    [2.72, 0.2],
+    [3, -0.2],
+    [3.72, -0.2],
+    [4, 0.18],
     [5, 0.18],
   ],
   portrait: [[0, 0]],
@@ -85,8 +86,10 @@ const shiftY: Track = {
     [1.1, -0.2],
     [1.4, -0.15],
     [1.9, -0.15],
-    [2.1, -0.2],
-    [5, -0.2],
+    [2.1, -0.3],
+    [3.9, -0.3],
+    [4.1, -0.24],
+    [5, -0.24],
   ],
 };
 // The camera closes in while the sheet packs small, so the block stays a subject and not a speck.
@@ -94,7 +97,7 @@ const distance: Track = {
   wide: [
     [0, 9.6],
     [1.05, 9.8],
-    [1.3, 7.2],
+    [1.4, 9.2],
     [1.58, 4.4],
     [1.75, 4.4],
     [2, 9.6],
@@ -110,16 +113,16 @@ const distance: Track = {
   portrait: [
     [0, 19],
     [1.05, 19.5],
-    [1.3, 14],
+    [1.4, 18],
     [1.58, 8.5],
     [1.75, 8.5],
     [2, 19],
-    [2.3, 16.5],
-    [2.9, 16.5],
-    [3.1, 19],
-    [3.3, 16],
-    [3.58, 12],
-    [3.74, 12],
+    [2.3, 20],
+    [2.9, 20],
+    [3.1, 21],
+    [3.3, 19],
+    [3.58, 14],
+    [3.74, 14],
     [3.9, 19],
     [5, 19],
   ],
@@ -251,6 +254,14 @@ const packWindow: readonly Key[] = [
   [1.98, 0],
 ];
 
+/** The contact link throws the dart: out along its nose, a beat of empty page, back in from behind. */
+function thrown(seconds: number) {
+  if (seconds < 0 || seconds >= 3.4) return 0;
+  if (seconds < 1.1) return 16 * Math.pow(seconds / 1.1, 2);
+  if (seconds < 1.7) return 16;
+  return -16 * Math.pow(1 - (seconds - 1.7) / 1.7, 3);
+}
+
 const pick = (track: Track, wide: boolean) => (wide ? track.wide : track.portrait);
 
 export function direct(
@@ -260,6 +271,7 @@ export function direct(
   pointerY: number,
   wide: boolean,
   pack = 0,
+  sinceThrow = -1,
 ): Shot {
   const scrolled = sample(fold, story, hinge);
   const packed = pack * sample(packWindow, story);
@@ -288,6 +300,6 @@ export function direct(
     ghostMiura: pattern === "miura" ? 0 : 1,
     ghostVault: pattern === "halves" || pattern === "dart" ? 1 : 0,
     backlight: sample(backlight, story),
-    flight: sample(flight, story),
+    flight: sample(flight, story) + (story >= 4.84 ? thrown(sinceThrow) : 0),
   };
 }
