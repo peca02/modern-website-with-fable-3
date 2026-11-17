@@ -41,8 +41,37 @@ const browser = await chromium.launch();
   const page = await browser.newPage({ viewport: { width: 1280, height: 720 } });
   const errors = [];
   page.on("pageerror", (error) => errors.push(error.message));
-  await page.goto(base);
+  await page.goto(base, { waitUntil: "commit" });
+  await page.waitForSelector("[data-phase]");
+  check(
+    "preloader covers the page while loading",
+    await page.evaluate(() => {
+      const overlay = document.querySelector("[data-phase]")?.closest("div.fixed");
+      return !("loaded" in document.documentElement.dataset) && overlay !== null && getComputedStyle(overlay).display !== "none";
+    }),
+  );
   await live(page);
+  await page.waitForFunction(() => "loaded" in document.documentElement.dataset, undefined, { timeout: 60000 });
+  const phasesDone = await page.evaluate(
+    () => [...document.querySelectorAll("[data-phase]")].filter((item) => "done" in item.dataset).length,
+  );
+  check("preloader lets go with every phase done", phasesDone === 5, String(phasesDone));
+
+  const sound = page.getByRole("button", { name: "Sound" });
+  await sound.click();
+  await page.waitForFunction(() => document.querySelector("header button")?.getAttribute("aria-pressed") === "true");
+  await sound.click();
+  await page.waitForFunction(() => document.querySelector("header button")?.getAttribute("aria-pressed") === "false");
+  check("sound toggle switches on and off", true);
+
+  const contact = await page.getByRole("link", { name: "Contact" }).boundingBox();
+  await page.mouse.move(200, 400);
+  await page.mouse.move((contact?.x ?? 0) + 8, (contact?.y ?? 0) + 6);
+  const unfolded = await page
+    .waitForFunction(() => document.querySelector("[data-open]") !== null, undefined, { timeout: 60000 })
+    .then(() => true, () => false);
+  check("dog-ear unfolds over a link", unfolded);
+
   check("one h1", (await page.locator("h1").count()) === 1);
   check("chapters pinned", await page.evaluate(() => "pinned" in document.documentElement.dataset));
   const total = await page.evaluate(() => document.documentElement.scrollHeight / window.innerHeight);
@@ -51,6 +80,12 @@ const browser = await chromium.launch();
   await scrollToStory(page, 0.6);
   const early = await page.evaluate(() => document.documentElement.style.getPropertyValue("--backdrop"));
   check("chapter 1 keeps its page while pinned", early === "#4fbe8a", early);
+  await scrollToStory(page, 0.9);
+  const turning = await page.evaluate(() => {
+    const style = document.documentElement.style;
+    return `${style.getPropertyValue("--backdrop")} ${style.getPropertyValue("--turn")} ${style.getPropertyValue("--turn-page")}`;
+  });
+  check("page turns as a fold", turning.startsWith("#4fbe8a #e3b23c polygon("), turning.slice(0, 40));
 
   await scrollToStory(page, 1.3);
   const before = await page.locator("output").textContent();
@@ -148,6 +183,30 @@ const browser = await chromium.launch();
   );
   check("no JavaScript: chapters paint their own page", new Set(colors).size === 5, colors.join(" "));
   await context.close();
+}
+
+{
+  const page = await browser.newPage({ viewport: { width: 1280, height: 720 } });
+  await page.addInitScript(() => {
+    const original = HTMLCanvasElement.prototype.getContext;
+    HTMLCanvasElement.prototype.getContext = function getContext(type, ...rest) {
+      return String(type).startsWith("webgl") ? null : original.call(this, type, ...rest);
+    };
+  });
+  await page.goto(base);
+  const released = await page
+    .waitForFunction(
+      () => document.documentElement.dataset.scene === "none" && "loaded" in document.documentElement.dataset,
+      undefined,
+      { timeout: 60000 },
+    )
+    .then(() => true, () => false);
+  const drawn = await page.evaluate(() => {
+    const drawing = document.querySelector("[data-chapter] svg");
+    return drawing !== null && getComputedStyle(drawing).display !== "none";
+  });
+  check("no WebGL: preloader lets go and the drawing stands in", released && drawn);
+  await page.close();
 }
 
 await browser.close();

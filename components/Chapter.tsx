@@ -1,4 +1,6 @@
 import type { ReactNode } from "react";
+import { SheetDrawing } from "@/components/SheetDrawing";
+import { chapters } from "@/lib/beats";
 import type { StockName } from "@/lib/palette";
 
 const stockClass: Record<StockName, string> = {
@@ -14,6 +16,8 @@ const sideClass = {
   left: "wide:col-span-6 wide:col-start-1",
   right: "wide:col-span-6 wide:col-start-7",
 };
+
+const drawingClass = { left: "wide:col-start-7", right: "wide:col-start-1" };
 
 type ChapterProps = {
   id: string;
@@ -40,7 +44,7 @@ export function Chapter({ id, stock, side, step, name, headline, hero = false, c
     >
       <div
         data-stage
-        className="page-grid min-h-svh content-start pt-24 pb-16 pinned:h-svh pinned:overflow-hidden pinned:pb-24 wide:content-center wide:pt-28"
+        className="page-grid min-h-svh content-start pt-24 pb-16 pinned:h-svh pinned:overflow-hidden pinned:pb-24 wide:content-center-safe wide:pt-28"
       >
         <div className={`halo col-span-full flex flex-col gap-4 md:col-span-9 wide:gap-6 ${sideClass[side]}`}>
           <p className="type-label" data-reveal data-at={at}>
@@ -60,6 +64,10 @@ export function Chapter({ id, stock, side, step, name, headline, hero = false, c
           </Heading>
           {children}
         </div>
+        <SheetDrawing
+          index={chapters.findIndex((chapter) => chapter.id === id)}
+          className={`col-span-full wide:col-span-6 wide:row-start-1 wide:self-center ${drawingClass[side]}`}
+        />
       </div>
     </section>
   );

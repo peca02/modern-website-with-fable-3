@@ -5,6 +5,8 @@ export const site = {
   description:
     "Mountain & Valley engineers crease patterns for shelters, solar arrays and packaging that ship flat and open into structure. Nothing added, nothing removed.",
   email: "hello@mountainandvalley.example",
+  // PLACEHOLDER: replace with the deployed address (used for absolute links to the share image).
+  url: "https://mountain-and-valley.vercel.app",
 } as const;
 
 export const navigation = {

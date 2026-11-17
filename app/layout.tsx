@@ -19,8 +19,11 @@ const literata = Literata({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(site.url),
   title: `${site.name}. ${site.tagline}`,
   description: site.description,
+  openGraph: { title: site.name, description: site.description, type: "website", siteName: site.name },
+  twitter: { card: "summary_large_image" },
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
