@@ -132,9 +132,11 @@ export function ScrollRig({ children }: { children: ReactNode }) {
         lastScroll = scroll;
         store.velocity += (target - store.velocity) * 0.15;
 
-        const turn = reduced
-          ? 0
-          : gsap.utils.clamp(0, 1, (story - index - (1 - pageTurnSpan)) / pageTurnSpan);
+        // The last page has no page after it to turn to.
+        const turn =
+          reduced || index >= chapters.length - 1
+            ? 0
+            : gsap.utils.clamp(0, 1, (story - index - (1 - pageTurnSpan)) / pageTurnSpan);
         const key = `${index}:${turn.toFixed(3)}`;
         if (key !== painted) {
           painted = key;

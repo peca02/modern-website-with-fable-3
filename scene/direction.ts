@@ -286,6 +286,9 @@ const pick = (track: Track, wide: boolean) => (wide ? track.wide : track.portrai
 // so the sheet moves down and shrinks instead of covering the copy (never below half its size).
 const copyFramed = [0.606, 0.589, 0.668, 0.759, 0.681];
 const smallest = 0.5;
+// The wide tracks are framed at 16:10 and wider. The view angle is vertical, so on a squarer wide screen the
+// sheet would take more of the width and reach into the copy's half: the camera steps back instead.
+const framedAspect = 1.6;
 
 const copyKeys = (shares: readonly number[]) =>
   shares.flatMap((share, index): Key[] => [
@@ -329,9 +332,11 @@ export function direct(
     halves: sample(halves, story, hinge),
     dart: sample(dart, story, hinge),
   };
-  const room = wide ? { from: 0, to: 0, scale: 1 } : copyRoom(story, copy);
+  const room = wide ? { from: 0, to: 0, scale: Math.min(1, aspect / framedAspect) } : copyRoom(story, copy);
   // Screen y of the sheet's center from the top, moved from the framed strip into the free one.
-  const center = room.to + (0.5 - sample(pick(shiftY, wide), story) - room.from) * room.scale;
+  const center = wide
+    ? 0.5 - sample(pick(shiftY, wide), story)
+    : room.to + (0.5 - sample(pick(shiftY, wide), story) - room.from) * room.scale;
   return {
     shiftX: enter(sample(pick(shiftX, wide), story)),
     shiftY: enter(0.5 - center),
