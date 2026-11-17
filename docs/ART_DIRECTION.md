@@ -47,13 +47,14 @@ Two families, clearly distinct.
 
 - Left-aligned. Headlines large and compressed, running across the grid; body text in a narrow column (50-75 characters).
 - The scene and the text share the screen by lens shift: on wide screens text takes one side and the sheet the other; on portrait screens the sheet sits above or below the text.
-- Text over the scene gets a page-colored halo as insurance.
+- Wide: text left and sheet right in chapters 1, 3, 5; text right and sheet left in 2, 4. The sheet changes sides while a chapter scrolls away.
+- Body copy over the scene gets a page-colored halo as insurance. Headlines get none (it smudges on the white sheet) and may run over the sheet.
 
 ## Motion language
 
 - Crisp and hinged. A fold starts fast, stops decisively and springs back a few degrees.
 - Sequences are staccato: fold, pause, fold.
-- DOM text opens on a hinge: each line rotates open from its top edge. No mask rises, no fade-and-slide.
+- DOM text opens on a hinge: each line rotates open from its top edge, and folds shut the same way when its chapter leaves. No mask rises, no fade-and-slide.
 - Eases (in `lib/gsap.ts`): `crease` (fast start, hard stop), `spring` (hard stop with a small overshoot), `flat` (linear, for scrubbed values). Durations: `snap` 0.25s, `fold` 0.6s, `turn` 1.1s.
 - Reduced motion: no pins, no smooth scroll, no hinge animation; each chapter shows its own held pose.
 
@@ -84,7 +85,7 @@ Folding instructions: second person, imperative, short steps, dry humor. Concret
 - Poses are arrays of fold drivers, never vertex positions. Patterns swap only while the sheet is flat or edge-on.
 - Folds stop a few degrees short of fully closed and stacked layers are offset slightly, so they never flicker.
 - Scroll-driven folds are pure functions of story position: stepped tracks (steep segment, plateau), no history-dependent tweens. Crease memory is computed from the direction file, not from history.
-- Vertices are computed on the CPU and uploaded each frame; DOM anchors read the same vertices. No GPGPU, no raymarching. At most a few small paper flecks on the upper tiers, kept only if a screenshot shows they help.
+- Vertices are computed on the CPU and uploaded each frame; DOM anchors read the same vertices. No GPGPU, no raymarching. No particles (paper flecks were considered and dropped).
 
 ## Signature moments
 

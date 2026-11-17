@@ -8,7 +8,7 @@ One-page, statically prerendered site for a fictional origami / paper-engineerin
 
 ## Stack and exact versions
 
-Replace each `TBD` with the exact version as soon as the trial install proves the set works together. Install with `--save-exact`. Do not upgrade mid-project without recording the reason here.
+Proven together by a trial install. Install with `--save-exact`. Do not upgrade mid-project without recording the reason here.
 
 | Package | Version |
 | --- | --- |
@@ -140,5 +140,6 @@ Create folders only when needed. Do not create empty directories.
 ## Verification
 
 - Verify against the production build (`scripts/serve.sh`), never the development server.
+- After changes to scroll, pins, reveals or controls run `node scripts/checks.mjs` (behavior checks, no pictures).
 - Playwright scripts wait for state (an attribute on `<html>`), never for a fixed time. In the cloud the scene renders on the CPU at about one frame per second.
 - Never claim something works if it could not be checked here (real frame rate, real phones, sound, Safari). List it as unverified.

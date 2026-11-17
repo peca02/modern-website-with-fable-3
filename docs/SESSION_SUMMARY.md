@@ -25,20 +25,29 @@ The plan was approved by the user. Work to the end without asking; the only exce
 
 ## Roadmap
 
-| Session | Phase | Content | Done when | PROMPT.md |
-| --- | --- | --- | --- | --- |
-| 4 | 4 | Preloader + `lib/loadClock.ts` with a time limit, dog-ear cursor, page-turn fold, sound, SVG fallback (no WebGL, lost context, no JS), `app/opengraph-image.tsx`, `app/icon.tsx` | All signature moments work; survives no WebGL and no JS | §9.6, §9.7 |
-| 5 | 5 | Phone, reduced motion, `scripts/flow.mjs`, shots at 375/768/1024/1440/1920, pull request, Serbian report | §12 and §13 complete | §12, §13 |
+`PROMPT.md` does not need to be read again: what phases 4 and 5 need from it (§9.6, §9.7, §12, §13) is written out below.
+
+| Session | Phase | Content | Done when |
+| --- | --- | --- | --- |
+| 4 | 4 | Preloader, dog-ear cursor, page-turn fold, sound, SVG fallback, OG image, icon | All signature moments work; the site survives no WebGL and no JavaScript |
+| 5 | 5 | Phone, reduced motion, full verification, pull request, Serbian report | Everything under "Phase 5" below is complete |
 
 ## Next: phase 4
 
-1. Preloader: a server-rendered overlay in the sheet-face color with the real load phases as steps (`lib/loadClock.ts`, with a time limit so it always releases). It sets `data-loaded` on `<html>`; `Reveals` must wait for it before opening chapter 1 (today the hero copy is visible, snaps shut at hydration and hinges open: the preloader hides that). The intro (sheet full-screen, then receding) is time-based; handover through `PaperMaterial.setPure`.
+1. Preloader: a server-rendered overlay in the sheet-face color with the real load phases as steps. `lib/loadClock.ts` tracks scene code, WebGL context, shaders, first frame and fonts; the scene's first frame is part of the same progress; a time limit releases a stuck load. It sets `data-loaded` on `<html>`; `Reveals` must wait for it before opening chapter 1 (today the hero copy is visible, snaps shut at hydration and hinges open: the preloader hides that). The intro (sheet full-screen, then receding) is time-based; handover through `PaperMaterial.setPure`.
 2. Dog-ear cursor (fine pointers only, own fixed layer outside the smoother).
 3. Page turn: the backdrop change as a diagonal fold (`clip-path`) instead of today's cross-fade in `ScrollRig`.
-4. Sound (`lib/audio.ts`): crease burst (pack control, fold steps), rustle from `store.velocity`, room tone; a mute toggle in the header.
-5. SVG fallback for no WebGL / lost context; check the no-JS page by eye.
+4. Sound (`lib/audio.ts`): an ambient layer that follows the chapter, the scroll speed (`store.velocity`) and the fold state, plus short UI sounds (crease burst on the pack control and on fold steps). The audio context is created only on the first click on a sound toggle in the header, and is suspended when sound is off or the tab is hidden.
+5. SVG fallback drawing of the sheet when there is no WebGL, no JavaScript, or the context is lost; check the no-JS page by eye. The cursor may have its own effect only on its small fixed layer.
 6. `app/opengraph-image.tsx`, `app/icon.tsx`.
 7. Small leftovers: during a throw the shadow map shows a large soft blot while the dart leaves (clamp or fade the shadow with `flight`); flecks were dropped (never tried, not needed); the vault shows only its outside; `memory` is a constant 1.
+
+## Phase 5 (the quality bar and the finish)
+
+- Text over the scene legible at every scroll position; the phone gets the same site on a lower tier with its own portrait framing.
+- `scripts/flow.mjs` (grow it from `scripts/checks.mjs`) walks through: preloader, keyboard, controls, sound toggle, refresh mid-page, no WebGL, lost context, stuck load, reduced motion, no JavaScript. Screenshots at 375, 768, 1024, 1440 and 1920.
+- One pull request against the default branch, text in English.
+- A report in Serbian with four parts: done, verified, not verified, weaker than wanted. Plus what the user does by hand: fill the credit placeholders in `lib/content.ts`, import the repository into Vercel.
 
 ## Design notes that exist nowhere else
 
