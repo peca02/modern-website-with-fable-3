@@ -28,10 +28,12 @@ type ChapterProps = {
   headline: readonly string[];
   hero?: boolean;
   children: ReactNode;
+  /** Copy that belongs to the drawing, shown over its foot (below the copy when nothing is pinned). */
+  aside?: ReactNode;
 };
 
 /** Ordinary vertical flow in HTML; under `pinned:` the stage becomes one screen that ScrollRig pins. */
-export function Chapter({ id, stock, side, step, name, headline, hero = false, children }: ChapterProps) {
+export function Chapter({ id, stock, side, step, name, headline, hero = false, children, aside }: ChapterProps) {
   const Heading = hero ? "h1" : "h2";
   // Above the fold the copy opens on load; further down it opens while the chapter scrolls in.
   const at = hero ? "-1" : "-0.12";
@@ -44,9 +46,9 @@ export function Chapter({ id, stock, side, step, name, headline, hero = false, c
     >
       <div
         data-stage
-        className="page-grid min-h-svh content-start pt-24 pb-16 pinned:h-svh pinned:overflow-hidden pinned:pb-24 wide:content-center-safe wide:pt-28"
+        className="page-grid min-h-svh content-start pt-24 pb-16 pinned:h-svh pinned:narrow:grid-rows-[auto_minmax(0,1fr)] pinned:wide:grid-rows-[minmax(0,1fr)] pinned:overflow-hidden pinned:pb-24 wide:content-center-safe wide:pt-28"
       >
-        <div data-copy className={`halo col-span-full flex flex-col gap-4 md:col-span-9 wide:gap-6 ${sideClass[side]}`}>
+        <div data-copy className={`halo col-span-full flex flex-col gap-3 md:col-span-9 wide:gap-6 wide:self-center-safe ${sideClass[side]}`}>
           <p className="type-label" data-reveal data-at={at}>
             {step}. {name}
           </p>
@@ -66,8 +68,15 @@ export function Chapter({ id, stock, side, step, name, headline, hero = false, c
         </div>
         <SheetDrawing
           index={chapters.findIndex((chapter) => chapter.id === id)}
-          className={`col-span-full wide:col-span-6 wide:row-start-1 wide:self-center ${drawingClass[side]}`}
+          className={`col-span-full wide:col-span-6 wide:row-start-1 wide:self-center pinned:narrow:row-start-2 ${drawingClass[side]}`}
         />
+        {aside ? (
+          <div
+            className={`halo col-span-full pt-3 wide:col-span-6 wide:row-start-1 wide:self-end pinned:narrow:row-start-2 pinned:narrow:self-end-safe ${drawingClass[side]}`}
+          >
+            {aside}
+          </div>
+        ) : null}
       </div>
     </section>
   );

@@ -12,7 +12,7 @@ export function SheetDrawing({ index, className = "" }: SheetDrawingProps) {
     <svg
       aria-hidden
       viewBox={viewBox}
-      className={`hidden max-h-64 w-full wide:max-h-none noscript:block scene-off:block ${className}`}
+      className={`hidden max-h-64 min-h-0 w-full wide:max-h-none pinned:h-full pinned:max-h-none noscript:block scene-off:block ${className}`}
     >
       <path d={shadow} fill={ink} opacity={0.3} transform="translate(0.16 0.22)" />
       {facets.map((facet, order) => (

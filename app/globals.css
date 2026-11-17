@@ -1,6 +1,7 @@
 @import "tailwindcss";
 
 @custom-variant wide (@media (min-aspect-ratio: 5/4) and (min-width: 48rem));
+@custom-variant narrow (@media not all and (min-aspect-ratio: 5/4) and (min-width: 48rem));
 @custom-variant fine (@media (pointer: fine));
 @custom-variant scene-live (&:where([data-scene="live"] *));
 @custom-variant scene-off (&:where([data-scene="none"] *, [data-scene="lost"] *));

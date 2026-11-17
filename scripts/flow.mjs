@@ -74,7 +74,8 @@ const overflow = (page) =>
             .filter((child) => getComputedStyle(child).display !== "none")
             .map((child) => {
               const box = child.getBoundingClientRect();
-              return box.top + child.offsetHeight;
+              // SVG has no offsetHeight; the drawing is never transformed, so its box is its layout.
+              return box.top + (child instanceof HTMLElement ? child.offsetHeight : box.height);
             }),
         );
         return { chapter: index + 1, over: Math.round(lowest - bottom) };
