@@ -3,12 +3,14 @@
 @custom-variant wide (@media (min-aspect-ratio: 5/4) and (min-width: 48rem));
 @custom-variant narrow (@media not all and (min-aspect-ratio: 5/4) and (min-width: 48rem));
 @custom-variant fine (@media (pointer: fine));
+@custom-variant coarse (@media (pointer: coarse));
 @custom-variant scene-live (&:where([data-scene="live"] *));
 @custom-variant scene-off (&:where([data-scene="none"] *, [data-scene="lost"] *));
 @custom-variant loaded (&:where([data-loaded] *));
 @custom-variant pinned (&:where([data-pinned] *));
 @custom-variant facts-tags (&:where([data-facts="tags"] *));
 @custom-variant motion-full (&:where([data-motion="full"] *));
+@custom-variant motion-reduced (&:where([data-motion="reduced"] *));
 
 @theme {
   --color-*: initial;
@@ -70,6 +72,21 @@
 @utility stock-lilac {
   --page: var(--color-lilac);
   --ink: var(--color-lilac-ink);
+}
+
+/* On touch screens a small control reaches out to a 44 px tall hit area without changing how it looks. */
+@utility touch-target {
+  @variant coarse {
+    position: relative;
+    &::before {
+      content: "";
+      position: absolute;
+      inset-inline: 0;
+      top: 50%;
+      height: --spacing(11);
+      translate: 0 -50%;
+    }
+  }
 }
 
 @utility type-hero {

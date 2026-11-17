@@ -53,6 +53,8 @@ export function Stage() {
       camera={{ fov: 30, near: 0.1, far: 60, position: [0, 0, 9] }}
       onCreated={({ gl, scene, camera }) => {
         store.tier = tier;
+        // For the development scripts: the tier the device was given.
+        document.documentElement.dataset.tier = String(tier);
         loadClock.mark("context");
         void gl.compileAsync(scene, camera).then(
           () => loadClock.mark("shaders"),

@@ -1,9 +1,9 @@
 // The whole visit, end to end. Needs the production server (scripts/serve.sh).
 //   node scripts/flow.mjs checks          behavior: preloader, keyboard, controls, sound, refresh, fallbacks
 //   node scripts/flow.mjs layout          copy fits its pinned screen at every width, with and without the scene
-//   node scripts/flow.mjs shots <width>x<height> [stories...]   screenshots of the live scene at one width
+//   node scripts/flow.mjs shots <width>x<height> [stories...]   screenshots of the live scene at one width (REDUCED=1)
 import { mkdir } from "node:fs/promises";
-import { chromium } from "playwright";
+import { chromium, devices } from "playwright";
 
 const base = process.env.SHOTS_URL ?? "http://localhost:3000";
 const mode = process.argv[2] ?? "checks";
@@ -281,6 +281,44 @@ async function checks(browser) {
     check("no WebGL: preloader lets go and the drawing stands in", released && drawn);
     await page.close();
   }
+
+  {
+    const context = await browser.newContext({ ...devices["iPhone 13"] });
+    const page = await context.newPage();
+    await page.goto(base);
+    await live(page);
+    await loaded(page);
+    const state = await page.evaluate(() => {
+      const root = document.documentElement;
+      const ear = document.querySelector("div.pointer-events-none.fixed.z-40");
+      const targets = [...document.querySelectorAll("header a, header button")].map(
+        (target) => getComputedStyle(target, "::before").height,
+      );
+      return {
+        tier: root.dataset.tier,
+        pinned: "pinned" in root.dataset,
+        ear: ear ? getComputedStyle(ear).display : "none",
+        targets,
+      };
+    });
+    check("touch: a lower tier without the 1024 shadow map", state.tier !== undefined && state.tier !== "3", state.tier);
+    check("touch: chapters pin and no dog-ear cursor", state.pinned && state.ear === "none", JSON.stringify(state));
+    check(
+      "touch: header controls have a 44 px hit area",
+      state.targets.length === 3 && state.targets.every((height) => height === "44px"),
+      state.targets.join(" "),
+    );
+    await scrollToStory(page, 1.3);
+    const range = page.locator("input[type=range]");
+    const before = await range.inputValue();
+    const box = await range.boundingBox();
+    if (box) await page.touchscreen.tap(box.x + box.width * 0.9, box.y + box.height / 2);
+    const after = await range.inputValue();
+    const height = box ? Math.round(box.height) : 0;
+    check("touch: the pack range moves by tap and is 44 px tall", Number(after) > 70 && height >= 44, `${before} -> ${after}, ${height} px`);
+    await page.screenshot({ path: "shots/touch-range.png", clip: box ? { x: 0, y: box.y - 40, width: 390, height: box.height + 80 } : undefined });
+    await context.close();
+  }
 }
 
 // Fast: without WebGL the page settles in seconds. The live layout is the same page with the tag facts hidden.
@@ -322,7 +360,9 @@ async function layout(browser) {
 async function shots(browser) {
   const [width, height] = (process.argv[3] ?? "1440x900").split("x").map(Number);
   const stories = process.argv.slice(4).map(Number);
-  const page = await browser.newPage({ viewport: { width, height } });
+  // REDUCED=1 takes the shots with reduced motion.
+  const reducedMotion = process.env.REDUCED ? "reduce" : "no-preference";
+  const page = await browser.newPage({ viewport: { width, height }, reducedMotion });
   const errors = [];
   page.on("pageerror", (error) => errors.push(error.message));
   await page.goto(base);
@@ -331,7 +371,7 @@ async function shots(browser) {
   await mkdir("shots", { recursive: true });
   for (const story of stories.length > 0 ? stories : [0.4, 2.7]) {
     await scrollToStory(page, story);
-    const file = `shots/flow-${width}x${height}-${Math.round(story * 100)}.png`;
+    const file = `shots/flow-${width}x${height}-${Math.round(story * 100)}${process.env.REDUCED ? "-r" : ""}.png`;
     await page.screenshot({ path: file });
     results.push(file);
   }

@@ -15,6 +15,9 @@ type PackControlProps = {
 
 const thumb =
   "[&::-webkit-slider-thumb]:size-8 [&::-webkit-slider-thumb]:cursor-grab [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:bg-ink [&::-moz-range-thumb]:size-8 [&::-moz-range-thumb]:cursor-grab [&::-moz-range-thumb]:rounded-none [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:bg-ink";
+// On touch screens the thumb and the track keep their look inside a 48 px hit area (transparent borders, a negative margin keeps the layout).
+const coarseThumb =
+  "coarse:-my-2 coarse:h-12 coarse:border-y-8 coarse:border-transparent coarse:bg-clip-padding coarse:[&::-webkit-slider-thumb]:size-12 coarse:[&::-webkit-slider-thumb]:border-8 coarse:[&::-webkit-slider-thumb]:border-solid coarse:[&::-webkit-slider-thumb]:border-transparent coarse:[&::-webkit-slider-thumb]:bg-clip-padding coarse:[&::-moz-range-thumb]:size-12 coarse:[&::-moz-range-thumb]:border-8 coarse:[&::-moz-range-thumb]:border-solid coarse:[&::-moz-range-thumb]:border-transparent coarse:[&::-moz-range-thumb]:bg-clip-padding";
 
 /** One range input drives the Miura fold. The readout follows the sheet itself; the headline follows through `direct()`. */
 export function PackControl({ label, open, packed, readout, flat }: PackControlProps) {
@@ -58,7 +61,7 @@ export function PackControl({ label, open, packed, readout, flat }: PackControlP
             audio.crease(0.6);
           }
         }}
-        className={`h-8 w-full cursor-pointer appearance-none bg-ink/20 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ink ${thumb}`}
+        className={`h-8 w-full cursor-pointer appearance-none bg-ink/20 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ink ${thumb} ${coarseThumb}`}
       />
       <div className="type-label flex justify-between" aria-hidden>
         <span>{open}</span>

@@ -20,7 +20,7 @@ export function JumpLink({ href, to, label, children }: JumpLinkProps) {
       href={href}
       aria-label={label}
       onClick={jump}
-      className="type-label focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-backdrop-ink"
+      className="type-label touch-target focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-backdrop-ink"
     >
       {children}
     </a>
