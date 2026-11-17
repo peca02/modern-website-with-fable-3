@@ -28,7 +28,7 @@
 
   --text-hero: clamp(4.5rem, min(17vw, 22svh), 17rem);
   --text-display: clamp(3rem, min(10vw, 14svh), 10rem);
-  --text-title: clamp(1.75rem, 3.2vw, 3.25rem);
+  --text-title: clamp(1.75rem, min(3.2vw, 5svh), 3.25rem);
   --text-body: clamp(1.0625rem, 0.35vw + 1rem, 1.3125rem);
   --text-label: clamp(0.8125rem, 0.15vw + 0.78rem, 0.9375rem);
 
@@ -124,4 +124,13 @@
   text-shadow:
     0 0 0.5rem var(--page),
     0 0 1.5rem var(--page);
+}
+
+/* A paper tag: the cut top-right corner is its fold. */
+@utility paper-tag {
+  background-color: var(--color-sheet);
+  clip-path: polygon(0 0, calc(100% - 0.75rem) 0, 100% 0.75rem, 100% 100%, 0 100%);
+  padding: 0.25rem 1.25rem 0.25rem 0.5rem;
+  white-space: nowrap;
+  text-shadow: none;
 }

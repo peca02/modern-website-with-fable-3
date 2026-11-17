@@ -24,11 +24,13 @@ export function StandUp() {
         ))}
       </ul>
       {/* With a live scene the same facts are shown as tags that follow the vault (components/Tags.tsx). */}
-      <div className="scene-live:sr-only">
+      <div className="flex flex-col gap-2 scene-live:sr-only">
         <h3 className="type-label">{standUp.tagsTitle}</h3>
-        <ul>
+        <ul className="flex flex-wrap gap-2">
           {standUp.tags.map((tag) => (
-            <li key={tag.anchor}>{tag.label}</li>
+            <li key={tag.anchor} className="type-label paper-tag">
+              {tag.label}
+            </li>
           ))}
         </ul>
       </div>

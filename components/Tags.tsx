@@ -69,7 +69,7 @@ export function Tags({ tags }: TagsProps) {
       {tags.map((tag) => (
         <div key={tag.anchor} data-tag={tag.anchor} className="absolute top-0 left-0">
           {/* The chip sits above its point; the cut corner is the fold. */}
-          <p className="type-label invisible absolute bottom-2 left-2 bg-sheet py-1 pr-5 pl-2 whitespace-nowrap text-ink [clip-path:polygon(0_0,calc(100%-0.75rem)_0,100%_0.75rem,100%_100%,0_100%)]">
+          <p className="type-label paper-tag invisible absolute bottom-2 left-2 text-ink">
             {tag.label}
           </p>
         </div>
