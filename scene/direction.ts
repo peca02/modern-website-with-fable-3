@@ -59,6 +59,26 @@ export function sample(keys: readonly Key[], at: number, ease: (t: number) => nu
   return keys[keys.length - 1]?.[1] ?? first[1];
 }
 
+/**
+ * The running maximum of a track up to `at`, scaled so the highest key is 1: how far the creases it drives
+ * have ever been folded. Precomputed from the keys, so it depends on story position alone.
+ */
+function envelope(keys: readonly Key[], ease: (t: number) => number = smooth) {
+  let highest = 0;
+  const reached = keys.map(([at, value]): Key => {
+    highest = Math.max(highest, value);
+    return [at, highest];
+  });
+  return (at: number) => {
+    let passed = 0;
+    for (const [keyAt, value] of reached) {
+      if (keyAt > at) break;
+      passed = value;
+    }
+    return highest > 0 ? Math.min(1, Math.max(passed, sample(keys, at, ease)) / highest) : 0;
+  };
+}
+
 type Track = { wide: readonly Key[]; portrait: readonly Key[] };
 
 // The sheet changes sides while a chapter scrolls away (the last quarter), so it has arrived when the next pins.
@@ -248,6 +268,12 @@ const flight: readonly Key[] = [
   [4.88, 0],
   [5, 1.4],
 ];
+const creased: Record<Pattern, (at: number) => number> = {
+  miura: envelope(fold, hinge),
+  vault: envelope(arch, hinge),
+  halves: envelope(halves, hinge),
+  dart: envelope(dart, hinge),
+};
 // The pack control only acts inside chapter 2.
 const packWindow: readonly Key[] = [
   [0.9, 0],
@@ -348,7 +374,7 @@ export function direct(
     pattern,
     lift: raised,
     fold: enter(folds[pattern]),
-    memory: 1,
+    memory: enter(creased[pattern](story)),
     ghostMiura: pattern === "miura" ? 0 : 1,
     ghostVault: pattern === "halves" || pattern === "dart" ? 1 : 0,
     backlight: sample(backlight, story),
