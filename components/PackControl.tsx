@@ -2,12 +2,10 @@
 
 import { useId, useRef } from "react";
 import { audio } from "@/lib/audio";
-import { packWidth } from "@/lib/beats";
 import { gsap, useGSAP } from "@/lib/gsap";
 import { store } from "@/lib/store";
 
 type PackControlProps = {
-  headlineId: string;
   label: string;
   open: string;
   packed: string;
@@ -18,25 +16,16 @@ type PackControlProps = {
 const thumb =
   "[&::-webkit-slider-thumb]:size-8 [&::-webkit-slider-thumb]:cursor-grab [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:bg-ink [&::-moz-range-thumb]:size-8 [&::-moz-range-thumb]:cursor-grab [&::-moz-range-thumb]:rounded-none [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:bg-ink";
 
-/** One range input drives the Miura fold. The headline's width axis and the readout follow the sheet itself. */
-export function PackControl({ headlineId, label, open, packed, readout, flat }: PackControlProps) {
+/** One range input drives the Miura fold. The readout follows the sheet itself; the headline follows through `direct()`. */
+export function PackControl({ label, open, packed, readout, flat }: PackControlProps) {
   const id = useId();
   const output = useRef<HTMLOutputElement>(null);
   const lastPleat = useRef(0);
 
   useGSAP(() => {
-    const headline = document.getElementById(headlineId);
-    let shownWidth = "";
     let shownSize = "";
     const tick = () => {
-      const { sheet, controls } = store;
-      // Without a scene the control still squeezes the headline.
-      const fold = sheet.live ? sheet.fold : controls.pack;
-      const width = gsap.utils.interpolate(packWidth.open, packWidth.packed, fold).toFixed(1);
-      if (width !== shownWidth) {
-        shownWidth = width;
-        headline?.style.setProperty("--wdth", width);
-      }
+      const { sheet } = store;
       if (!sheet.live || !output.current) return;
       const size = `${sheet.x.toFixed(2)} × ${sheet.y.toFixed(2)} × ${sheet.z.toFixed(2)} m`;
       if (size !== shownSize) {
@@ -45,10 +34,7 @@ export function PackControl({ headlineId, label, open, packed, readout, flat }: 
       }
     };
     gsap.ticker.add(tick);
-    return () => {
-      gsap.ticker.remove(tick);
-      headline?.style.removeProperty("--wdth");
-    };
+    return () => gsap.ticker.remove(tick);
   });
 
   return (

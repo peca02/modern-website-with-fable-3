@@ -11,7 +11,10 @@ const results = [];
 const check = (name, pass, detail = "") => results.push(`${pass ? "ok  " : "FAIL"} ${name} ${detail}`);
 
 const sizes = [
+  [320, 568],
+  [360, 740],
   [375, 812],
+  [390, 844],
   [375, 667],
   [768, 1024],
   [1024, 768],
@@ -292,8 +295,25 @@ async function layout(browser) {
       document.documentElement.dataset.scene = "live";
     });
     const on = await overflow(page);
+    // At its widest setting (flat sheet) every headline stays inside the page margins.
+    const wide = await page.evaluate(() => {
+      const headings = [...document.querySelectorAll("[data-chapter] :is(h1, h2)")];
+      const margin = Math.min(...headings.map((heading) => heading.getBoundingClientRect().left));
+      return headings
+        .map((heading) => {
+          heading.style.setProperty("--wdth", heading.dataset.widest ?? "70");
+          heading.style.width = "max-content";
+          const right = heading.getBoundingClientRect().left + heading.offsetWidth;
+          heading.style.width = "";
+          return { id: heading.id, widest: heading.dataset.widest, over: Math.round(right - (window.innerWidth - margin)) };
+        })
+        .filter((item) => item.widest === undefined || item.over > 0);
+    });
+    const sideways = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
     check(`copy fits its screen at ${width}x${height} without the scene`, off.length === 0, JSON.stringify(off));
     check(`copy fits its screen at ${width}x${height} with the scene`, on.length === 0, JSON.stringify(on));
+    check(`headlines fit at their widest at ${width}x${height}`, wide.length === 0, JSON.stringify(wide));
+    check(`page never scrolls sideways at ${width}x${height}`, sideways <= 0, String(sideways));
     await page.close();
   }
 }

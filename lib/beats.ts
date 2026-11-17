@@ -26,5 +26,5 @@ export const pageTurnSpan = 0.25;
 /** Story range in which the vault stands and its tags are shown. */
 export const tagsWindow = [2.64, 2.9] as const;
 
-/** Width axis of the pack headline: open sheet to packed block. */
-export const packWidth = { open: 100, packed: 50 } as const;
+/** Width axis of the chapter headlines: sheet flat to fully folded. */
+export const headlineWidth = { flat: 70, folded: 50 } as const;

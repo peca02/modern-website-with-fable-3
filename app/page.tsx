@@ -6,6 +6,7 @@ import { StayCreased } from "@/components/chapters/StayCreased";
 import { Cursor } from "@/components/Cursor";
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
+import { HeadlineWidth } from "@/components/HeadlineWidth";
 import { PageTurn } from "@/components/PageTurn";
 import { Preloader } from "@/components/Preloader";
 import { Reveals } from "@/components/Reveals";
@@ -33,6 +34,7 @@ export default function Page() {
       </ScrollRig>
       <Tags chapter={chapters[2].id} tags={standUp.tags} />
       <Reveals />
+      <HeadlineWidth />
       <Cursor />
       <Preloader title={preloader.title} steps={preloader.steps} />
     </>

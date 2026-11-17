@@ -12,7 +12,6 @@ export function PackSmall() {
       </p>
       <div data-reveal="block" data-at="0.08">
         <PackControl
-          headlineId={`${id}-title`}
           label={packSmall.control}
           open={packSmall.open}
           packed={packSmall.packed}
