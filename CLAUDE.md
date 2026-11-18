@@ -4,29 +4,31 @@ One-page, statically prerendered site for a fictional origami / paper-engineerin
 
 - Full brief and rules in detail: `PROMPT.md` (read only the sections you need).
 - Design spec: `docs/ART_DIRECTION.md`. Current state and next step: `docs/SESSION_SUMMARY.md`.
-- Language: everything written to the user is in Serbian. Everything in the repository (code, comments, docs, commits, PR text, site copy) is in English.
+- Language: everything written to the user is in Serbian. Everything in the repository (code, comments, docs, commits, PR text, site copy) is in English, except `docs/TECH_AND_IDENTITY.md`, written in Serbian for the owner.
 
 ## Stack and exact versions
 
-Replace each `TBD` with the exact version as soon as the trial install proves the set works together. Install with `--save-exact`. Do not upgrade mid-project without recording the reason here.
+Proven together by a trial install. Install with `--save-exact`. Do not upgrade mid-project without recording the reason here.
 
 | Package | Version |
 | --- | --- |
-| Node / npm | TBD |
-| next (App Router, static) | TBD |
-| react, react-dom (React Compiler on) | TBD |
-| typescript (strict) | TBD |
-| tailwindcss | TBD |
-| three | TBD |
-| @react-three/fiber | TBD |
-| @react-three/drei | TBD |
-| gsap (ScrollTrigger, ScrollSmoother, SplitText) | TBD |
-| @gsap/react | TBD |
-| react-icons | TBD |
-| playwright (dev only, matches the pre-installed Chromium) | TBD |
+| Node / npm | 22.23.4 / 10.9.9 |
+| next (App Router, static), eslint-config-next | 16.4.6 |
+| react, react-dom (React Compiler on, babel-plugin-react-compiler 1.0.0) | 19.3.1 |
+| typescript (strict) | 6.0.3 (not 7: typescript-eslint needs <6.1) |
+| tailwindcss, @tailwindcss/postcss | 4.3.5 |
+| three, @types/three | 0.187.0 |
+| @react-three/fiber | 9.8.2 |
+| @react-three/drei | 10.7.9 |
+| gsap (ScrollTrigger, ScrollSmoother, SplitText) | 3.15.1 |
+| @gsap/react | 2.1.2 |
+| react-icons | 5.7.0 |
+| eslint | 9.39.5 (not 10: eslint-plugin-import/react/jsx-a11y stop at 9) |
+| playwright (dev only, matches the pre-installed Chromium 1243) | 1.63.0 |
 
-- Renderer: TBD (WebGL + GLSL, or WebGPU; never mixed). Post-processing: TBD.
-- Not allowed: Lenis, Motion / Framer Motion, GLTF/GLB models, downloaded images, audio or video, icons outside react-icons, fonts outside next/font, external CSS.
+- Renderer: WebGL + GLSL (stable R3F 9 has no full WebGPU path; never mixed). Post-processing: none; transparent canvas over the CSS page color, MSAA, one shadow map on the upper quality tiers.
+- Fonts: Anybody (display, `wdth` + `wght` axes) and Literata (text, `opsz`) through `next/font/google`.
+- Not allowed: Lenis, Motion / Framer Motion, GLTF/GLB models, downloaded images, audio or video, icons outside react-icons, fonts outside next/font (one exception approved by the user: the OG image loads Anybody for `next/og`, which cannot use next/font), external CSS.
 
 ## Working mode and budget
 
@@ -38,12 +40,15 @@ Pro plan, most expensive model, small 5-hour limit: saving tokens matters more t
 4. The limit ran out? After the reset, resume exactly one thing.
 
 - Agents run strictly one at a time, never in parallel and never in a batch. Lessons from one agent go into the next agent's brief.
+- An agent's brief names the files it owns, the few files it may read, the rules from this file that matter for it, and what "done" means. An agent never starts other agents.
 - An interrupted agent with little work left is finished by the main thread. Restart it only if a lot remains.
 - Reviews: first pass in the main thread. A reviewer agent only when fresh eyes are needed, one at a time.
-- Commit and push after every step that works. The session can stop at any moment.
-- Keep context small: read a file once and only the part needed, keep command output quiet, take screenshots for one chapter and one width per run.
+- Commit and push after every step that works. The session can stop at any moment. Lint and typecheck pass before every commit.
+- Keep context small: read a file once and only the part needed, never re-read a file you just wrote, keep command output quiet, take screenshots for one chapter and one width per run. Load a skill once per session, when starting the kind of work it covers.
 - One phase per session by default. At the end of a phase write `docs/SESSION_SUMMARY.md` (done, verified, remaining, open questions, file paths, branch), commit, push, and tell the user it is a good moment for a new session.
-- A new session starts by reading this file, `docs/SESSION_SUMMARY.md` and `docs/ART_DIRECTION.md`, not the whole codebase. Keep those three files short.
+- A new session starts from a fresh clone that may be behind the work branch. Before reading anything, fetch the branch the user names and fast-forward to it (`git fetch origin <branch>`, `git merge --ff-only origin/<branch>`); files read before that may be stale.
+- Then read this file, `docs/SESSION_SUMMARY.md` and `docs/ART_DIRECTION.md`, not the whole codebase. Keep those three files short.
+- Then: run `npm ci` if `node_modules` is missing, read only the `PROMPT.md` sections the summary names, say in one Serbian sentence what the session will do, and do it without waiting for approval.
 - Before building complex functionality from scratch, check whether a library already in the stack solves it.
 
 ## Architecture
@@ -63,17 +68,17 @@ Pro plan, most expensive model, small 5-hour limit: saving tokens matters more t
 /app          → the single route, `globals.css` (tokens), generated OG image and icon
 /components   → DOM layer: server chapters, small client components
 /scene        → everything that imports three
-/lib          → store, beats, content, palette, gsap, quality, loadClock, audio
+/lib          → store, beats, content, palette, gsap, quality, loadClock, audio, drawing (fold models as SVG facets), `fold/` (fold models, no three imports)
 /hooks        → custom React hooks
 /types        → shared TypeScript types
-/scripts      → Playwright development scripts
-/docs         → ART_DIRECTION.md, SESSION_SUMMARY.md
+/scripts      → Playwright development scripts, `serve.sh` (build and serve for them)
+/docs         → ART_DIRECTION.md, SESSION_SUMMARY.md, TECH_AND_IDENTITY.md (technology and identity summary for the owner)
 
 Create folders only when needed. Do not create empty directories.
 
 ## Typography
 
-- Fonts only through next/font. Variable fonts are welcome.
+- Fonts only through next/font (except the OG image, see Stack). Variable fonts are welcome.
 - Body line height 1.4-1.6. Large text 1.1-1.3; hero display type may go down to 0.9, set once in its type token.
 - Line length 50-75 characters.
 - Use the composite type classes defined in `app/globals.css` (font, size, leading and tracking in one class). Fluid sizes with `clamp()`, no per-breakpoint sizes.
@@ -135,5 +140,7 @@ Create folders only when needed. Do not create empty directories.
 
 ## Verification
 
+- Verify against the production build (`scripts/serve.sh`), never the development server.
+- After changes to scroll, pins, reveals or controls run `node scripts/flow.mjs checks`; after layout or type changes `node scripts/flow.mjs layout` (no pictures).
 - Playwright scripts wait for state (an attribute on `<html>`), never for a fixed time. In the cloud the scene renders on the CPU at about one frame per second.
 - Never claim something works if it could not be checked here (real frame rate, real phones, sound, Safari). List it as unverified.
