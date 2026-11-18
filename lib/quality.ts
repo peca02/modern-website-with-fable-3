@@ -3,14 +3,13 @@ export type QualityTier = {
   antialias: boolean;
   /** Shadow map size in pixels; 0 turns the shadow map off in favor of fold-angle shading. */
   shadowMap: number;
-  flecks: number;
 };
 
 export const tiers: readonly QualityTier[] = [
-  { maxDpr: 1, antialias: false, shadowMap: 0, flecks: 0 },
-  { maxDpr: 1.5, antialias: true, shadowMap: 0, flecks: 0 },
-  { maxDpr: 1.75, antialias: true, shadowMap: 512, flecks: 120 },
-  { maxDpr: 2, antialias: true, shadowMap: 1024, flecks: 240 },
+  { maxDpr: 1, antialias: false, shadowMap: 0 },
+  { maxDpr: 1.5, antialias: true, shadowMap: 0 },
+  { maxDpr: 1.75, antialias: true, shadowMap: 512 },
+  { maxDpr: 2, antialias: true, shadowMap: 1024 },
 ];
 
 export const lowestTier = 0;
@@ -18,7 +17,7 @@ export const highestTier = tiers.length - 1;
 
 export function tierAt(index: number): QualityTier {
   const clamped = Math.min(highestTier, Math.max(lowestTier, Math.round(index)));
-  return tiers[clamped] ?? { maxDpr: 1, antialias: false, shadowMap: 0, flecks: 0 };
+  return tiers[clamped] ?? { maxDpr: 1, antialias: false, shadowMap: 0 };
 }
 
 function readDeviceMemory() {
