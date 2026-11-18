@@ -28,7 +28,7 @@ The page is a sheet of colored stock. Each chapter has its own saturated mid-ton
 
 Two families, clearly distinct.
 
-- **Anybody** (variable `wdth` 50-150, `wght` 100-900): headlines, wordmark, small labels. Headlines are tall and compressed like pleats (`wdth` 50-70, heavy). Small labels are wide (`wdth` 120+), medium weight, sentence case. The width axis is alive: every chapter headline runs from `wdth` 70 with the sheet flat to 50 fully folded, driven by the same fold value the scene shows (in chapter 2 that value includes the pack control).
+- **Anybody** (variable `wdth` 50-150, `wght` 100-900): headlines, wordmark, small labels. Headlines are tall and compressed like pleats (`wdth` 50-70, heavy). Small labels are wide (`wdth` 120+), medium weight, sentence case. The width axis is alive: every chapter headline runs from `wdth` 70 with the sheet flat to 50 fully folded, driven by the same fold value the scene shows (in chapter 2 that value includes the pack control). Where a flat headline would pass the page margin, its widest value is lowered to what fits.
 - **Literata** (variable `opsz`, `wght`): body text. A sturdy book serif, like a printed instruction leaflet.
 - No monospace. No all-caps labels. No single accented word inside a headline.
 - Numbered markers are used only for real sequences (chapters are steps; the process list is steps).

@@ -8,6 +8,10 @@ Branch: `claude/festive-hypatia-jick9a`. Rewritten every session; history lives 
 - All six phases are complete. Pull request [#1](https://github.com/peca02/modern-website-with-fable-3/pull/1) against `main` is open and carries a "Phase 6" section. The user checked the desktop site by eye; the phone is not yet checked by them.
 - Map: fold models `lib/fold/`, scene `scene/` (timing and framing in `scene/direction.ts`), chapters `components/chapters/*` over `components/Chapter.tsx`, preloader `lib/loadClock.ts` + `components/Preloader.tsx`, fallback `lib/drawing.ts` + `components/SheetDrawing.tsx`, OG image `app/opengraph-image.tsx`. Variants: `pinned`, `loaded`, `scene-live`, `scene-off`, `fine`, `coarse`, `wide`, `narrow`, `motion-full`, `motion-reduced`, `facts-tags`.
 
+## Next
+
+- Nothing is planned: the brief in `PROMPT.md` is complete. What remains is the user's: fill the placeholders in `lib/content.ts`, merge PR #1, import the repository into Vercel, and check a real phone. A new session only fixes what that check finds.
+
 ## Phase 6 (polish), what changed
 
 - Crease memory is a pure function of story: per pattern, the running maximum of its own fold track (`envelope()` in `direction.ts`), scaled to its highest key. A fresh sheet shows no creases.
