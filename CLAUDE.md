@@ -4,7 +4,7 @@ One-page, statically prerendered site for a fictional origami / paper-engineerin
 
 - Full brief and rules in detail: `PROMPT.md` (read only the sections you need).
 - Design spec: `docs/ART_DIRECTION.md`. Current state and next step: `docs/SESSION_SUMMARY.md`.
-- Language: everything written to the user is in Serbian. Everything in the repository (code, comments, docs, commits, PR text, site copy) is in English.
+- Language: everything written to the user is in Serbian. Everything in the repository (code, comments, docs, commits, PR text, site copy) is in English, except `docs/TECH_AND_IDENTITY.md`, written in Serbian for the owner.
 
 ## Stack and exact versions
 
@@ -72,7 +72,7 @@ Pro plan, most expensive model, small 5-hour limit: saving tokens matters more t
 /hooks        → custom React hooks
 /types        → shared TypeScript types
 /scripts      → Playwright development scripts, `serve.sh` (build and serve for them)
-/docs         → ART_DIRECTION.md, SESSION_SUMMARY.md
+/docs         → ART_DIRECTION.md, SESSION_SUMMARY.md, TECH_AND_IDENTITY.md (technology and identity summary for the owner)
 
 Create folders only when needed. Do not create empty directories.
 
